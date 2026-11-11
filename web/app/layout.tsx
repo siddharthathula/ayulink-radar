@@ -14,15 +14,15 @@ import { THEME_BOOT_SCRIPT } from "@/lib/ui/themeBoot";
 export const metadata: Metadata = {
   metadataBase: new URL("https://ayulink-radar.vercel.app"),
   title: {
-    default: "AyuLink Radar — see an outbreak before the clinic does",
+    default: "AyuLink Radar — AI early warning that knows your normal",
     template: "%s — AyuLink Radar",
   },
   description:
-    "A disease early-warning layer for communities: personal resting-heart-rate baselines, cluster alerts, and irregular-rhythm screening. Works offline over LoRa. Screening prototype, not a medical device.",
+    "AI-powered early warning for everyone: a modular wristband learns each person's normal, spots neighbourhood clusters, forecasts which area flares up in 3 days, and tells health workers who to visit first. Works offline over LoRa. Screening prototype, not a medical device.",
   openGraph: {
-    title: "AyuLink Radar",
+    title: "AyuLink Radar — it knows your normal, and when your street isn't",
     description:
-      "Personal-baseline drift flags, community cluster alerts and irregular-rhythm screening.",
+      "AI early warning: personal baselines, neighbourhood cluster alerts, a 3-day outbreak forecast and a grounded assistant. Modular band, works offline.",
     type: "website",
   },
 };
