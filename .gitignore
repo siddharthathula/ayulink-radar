@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# next.js
+.next/
+out/
+build/
+.vercel
+
+# tests
+coverage/
+
+# env — never commit secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+ml/data/
+ml/.cache/
+.pytest_cache/
+
+# firmware build artefacts
+.pio/
+*.bin
+*.elf
+
+# misc
+.DS_Store
+*.log
+docs/images/lighthouse-*.json

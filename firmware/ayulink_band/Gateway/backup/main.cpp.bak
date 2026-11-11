@@ -1,0 +1,510 @@
+#include <Adafruit_GFX.h>
+#include <Adafruit_SH110X.h>
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <DHT.h>
+#include <LoRa.h>
+#include <SPI.h>
+#include <WebSocketsClient.h> // We use WebSocketsClient for Gateway -> Backend
+#include <WiFi.h>
+#include <Wire.h>
+#include <time.h>
+
+// ================================
+// PIN DEFINITIONS
+// ================================
+
+// LoRa RA-02 (Standard ESP32 VSPI)
+#define LORA_SCK 18
+#define LORA_MISO 19
+#define LORA_MOSI 23
+#define LORA_SS 5
+#define LORA_RST 14
+#define LORA_DIO0 26 // Fixed for this Gateway board
+
+// OLED (I2C) - Adafruit SH110X (SH1106)
+#define OLED_WIDTH 128
+#define OLED_HEIGHT 64
+#define OLED_ADDR 0x3C
+#define OLED_SDA 21
+#define OLED_SCL 22
+
+// LEDs & Buzzer
+#define LED_GREEN 12
+#define LED_BLUE 13
+#define LED_RED 13   // Merged if needed, keeping 13
+#define BUZZER_PIN 4 // Fixed buzzer pin
+
+// Sensors
+#define DHT_PIN 32
+#define DHT_TYPE DHT22
+
+// NTP Settings (India Time)
+const char *NTP_SERVER = "pool.ntp.org";
+const long GMT_OFFSET_SEC = 19800; // UTC +5:30
+const int DAYLIGHT_OFFSET_SEC = 0;
+
+// ================================
+// CONFIGURATION
+// ================================
+
+const char *HOME_SSID = "WiFi";
+const char *HOME_PASS = "wordpass";
+const char* BACKEND_IP   = "10.100.221.237";  // Laptop IP
+const int   BACKEND_PORT  = 8000;
+const char* GATEWAY_PATH  = "/ws/gateway";
+
+// ================================
+// GLOBAL OBJECTS
+// ================================
+
+Adafruit_SH1106G display(OLED_WIDTH, OLED_HEIGHT, &Wire, -1);
+DHT dht(DHT_PIN, DHT_TYPE);
+WebSocketsClient webSocket;
+
+// Gateway State
+float gatewayTemp = 0.0;
+float cpuTemp = 0.0; 
+float gatewayHumidity = 0.0;
+
+// Scrolling UI State
+unsigned long lastDisplayUpdate = 0;
+unsigned long gatewayStartTime = 0;
+int displayPage = 0;
+const int TOTAL_PAGES = 5; 
+float currentScrollX = 0;
+int targetScrollX = 0;
+
+int totalPackets = 0;
+int totalAlerts = 0;
+bool simulationMode = false;
+int loraRssi = 0;
+int loraSnr = 0;
+
+// Patient State (Last Packet)
+String p_node = "--";
+int p_hr = 0;
+int p_oxy = 0;
+bool p_sos  = false;
+bool p_fall = false;
+bool p_worn = false;
+String p_timestamp = "--:--:--";
+unsigned long p_fall_time = 0;  // millis() when fall last received
+unsigned long p_sos_time  = 0;
+#define EMERGENCY_SHOW_MS 8000  // show emergency overlay for 8s
+
+// Notification Overlay State
+bool notifActive = false;
+String notifTitle = "";
+String notifMsg = "";
+unsigned long notifExpiry = 0;
+#define NOTIF_DURATION_MS 7000  // Show notification for 7 seconds
+
+// --- Alert History Ring Buffer ---
+struct Alert {
+  String type;
+  String node;
+  String time;
+};
+Alert alertHistory[3];
+int alertCount = 0;
+
+// ================================
+// FUNCTION DECLARATIONS
+// ================================
+
+void setupLoRa();
+void setupOLED();
+void setupNTP();
+void setupDHT();
+void processPacket(String packet);
+String getTimestamp();
+String getUptime();
+void updateDisplay();
+void drawPage_Vitals(int offset_x);
+void drawPage_GatewayStatus(int offset_x);
+void drawPage_LoRaStats(int offset_x);
+void drawPage_AlertLog(int offset_x);
+void drawPage_SimMode(int offset_x);
+void drawEmergencyOverlay();
+void drawStatusBar();
+void drawSignalBars(int x, int y, int rssi);
+void triggerAlarm(bool isFall);
+extern "C" uint8_t temprature_sens_read(); 
+
+// ── Downlink message from backend (processed in main loop, NOT in callback) ──
+String pendingWsMessage = "";
+bool   hasPendingWsMsg  = false;
+
+void wsEventHandler(WStype_t type, uint8_t* payload, size_t length) {
+    if (type == WStype_CONNECTED) {
+        Serial.println("[WS] Connected to backend");
+        webSocket.sendTXT("{\"type\": \"identify\", \"node\": \"GATEWAY\"}");
+    }
+    else if (type == WStype_TEXT) {
+        // Just store — no heap/JSON ops inside the callback to avoid crashes
+        pendingWsMessage = String((char*)payload);
+        hasPendingWsMsg  = true;
+    }
+    else if (type == WStype_DISCONNECTED) {
+        Serial.println("[WS] Disconnected from backend");
+    }
+}
+
+void processDownlink(String& msg) {
+    // ── Clear command ──────────────────────────────────────────────────────
+    if (msg.indexOf("\"clear\"") >= 0) {
+        notifActive = false;
+        notifMsg = "";
+        notifTitle = "";
+        // Send LoRa clear to wristband
+        LoRa.beginPacket();
+        LoRa.print("{\"cmd\":\"clear\"}");
+        LoRa.endPacket();
+        Serial.println("[WS] OLED cleared");
+        updateDisplay();
+        return;
+    }
+
+    // Simple field extraction without JsonDocument to save memory
+    if (msg.indexOf("\"notification\"") < 0) return;
+
+    // Extract "title" field
+    int ti = msg.indexOf("\"title\"");
+    if (ti >= 0) {
+        int q1 = msg.indexOf('"', ti + 8);
+        int q2 = msg.indexOf('"', q1 + 1);
+        if (q1 >= 0 && q2 > q1)
+            notifTitle = msg.substring(q1 + 1, q2);
+    }
+    // Extract "notif" field (the message body)
+    int ni = msg.indexOf("\"notif\"");
+    if (ni >= 0) {
+        int q1 = msg.indexOf('"', ni + 8);
+        int q2 = msg.indexOf('"', q1 + 1);
+        if (q1 >= 0 && q2 > q1)
+            notifMsg = msg.substring(q1 + 1, q2);
+    }
+
+    if (notifMsg.length() == 0) return;
+
+    notifActive = true;
+    notifExpiry = millis() + NOTIF_DURATION_MS;
+    Serial.println("[WS] Notification: " + notifMsg);
+
+    // Forward to wristband over LoRa — key must be "notif"
+    String loraPayload = "{\"cmd\":\"notif\",\"notif\":\"" + notifMsg.substring(0, 40) + "\"}";
+    LoRa.beginPacket();
+    LoRa.print(loraPayload);
+    LoRa.endPacket();
+
+    displayPage = 0;
+    updateDisplay();
+}
+
+void setup() {
+  gatewayStartTime = millis();
+  Serial.begin(115200);
+
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  setupOLED();
+  setupDHT();
+  setupLoRa();
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(HOME_SSID, HOME_PASS);
+
+  int retry = 0;
+  while (WiFi.status() != WL_CONNECTED && retry < 20) {
+    delay(500);
+    retry++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    digitalWrite(LED_GREEN, HIGH);
+    setupNTP();
+  } 
+
+  webSocket.begin(BACKEND_IP, BACKEND_PORT, GATEWAY_PATH);
+  webSocket.onEvent(wsEventHandler);
+  webSocket.setReconnectInterval(5000);
+}
+
+void loop() {
+  webSocket.loop();
+
+  // Process any pending downlink message from backend (safe to do here, outside callback)
+  if (hasPendingWsMsg) {
+    hasPendingWsMsg = false;
+    processDownlink(pendingWsMessage);
+    pendingWsMessage = "";
+  }
+  
+  // Smooth scroll logic
+  targetScrollX = displayPage * -128; // Each page is 128px wide
+  if (abs(currentScrollX - targetScrollX) > 0.5) {
+      // Easing function for smooth scroll
+      currentScrollX += (targetScrollX - currentScrollX) * 0.2; 
+      updateDisplay(); // Redraw constantly while animating
+  }
+
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    String packet = "";
+    while (LoRa.available()) {
+      packet += (char)LoRa.read();
+    }
+    totalPackets++;
+    processPacket(packet);
+  }
+
+  static unsigned long lastSensors = 0;
+  if (millis() - lastSensors > 5000) {
+    float t = dht.readTemperature();
+    float h = dht.readHumidity();
+    if (!isnan(t)) gatewayTemp = t;
+    if (!isnan(h)) gatewayHumidity = h;
+    lastSensors = millis();
+  }
+
+  // Page rotation
+  if (millis() - lastDisplayUpdate > 5000) {
+    if (!p_sos && !p_fall && !notifActive && !simulationMode) {
+      displayPage = (displayPage + 1) % TOTAL_PAGES;
+    }
+    lastDisplayUpdate = millis();
+  }
+
+  // Clear notification overlay when it expires
+  if (notifActive && millis() > notifExpiry) {
+    notifActive = false;
+    updateDisplay();
+  }
+}
+
+void setupLoRa() {
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+  if (!LoRa.begin(433E6)) {
+    Serial.println("[LoRa] FAILED!");
+  }
+}
+
+void setupOLED() {
+  display.begin(OLED_ADDR, true);
+  display.clearDisplay();
+  display.setTextColor(SH110X_WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.println("AyuLink Gateway...");
+  display.display();
+}
+
+void setupNTP() {
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
+}
+
+void setupDHT() { dht.begin(); }
+
+String getTimestamp() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+    return "00:00:00";
+  char buf[25];
+  sprintf(buf, "%02d:%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+  return String(buf);
+}
+
+void processPacket(String packet) {
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, packet);
+  if (error) return;
+
+  p_node      = doc["node"].as<String>();
+  p_hr        = doc["hr"];
+  p_oxy       = doc["oxy"];
+  p_sos       = doc["sos"];
+  p_fall      = doc["fall"];
+  p_worn      = doc["worn"];
+  p_timestamp = getTimestamp();
+
+  loraRssi = LoRa.packetRssi();
+
+  if (p_sos || p_fall) {
+    p_fall_time = p_fall ? millis() : p_fall_time;
+    p_sos_time  = p_sos  ? millis() : p_sos_time;
+    triggerAlarm(p_fall);
+    displayPage = 0;
+    updateDisplay();
+  }
+  
+  // Forward to backend
+  String output;
+  serializeJson(doc, output);
+  webSocket.sendTXT(output);
+}
+
+void triggerAlarm(bool isFall) {
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(BUZZER_PIN, HIGH); delay(150);
+    digitalWrite(BUZZER_PIN, LOW);  delay(150);
+  }
+}
+
+void updateDisplay() {
+  display.clearDisplay();
+
+  // Priority 1: Emergency (SOS/Fall) — only show for EMERGENCY_SHOW_MS ms
+  bool showFall = p_fall && (millis() - p_fall_time < EMERGENCY_SHOW_MS);
+  bool showSos  = p_sos  && (millis() - p_sos_time  < EMERGENCY_SHOW_MS);
+  if (showSos || showFall) {
+    drawEmergencyOverlay();
+    return;
+  }
+  // Auto-clear after timeout
+  if (p_fall && millis() - p_fall_time >= EMERGENCY_SHOW_MS) p_fall = false;
+  if (p_sos  && millis() - p_sos_time  >= EMERGENCY_SHOW_MS) p_sos  = false;
+
+  // Priority 2: Notification overlay
+  if (notifActive && millis() < notifExpiry) {
+    display.fillRect(0, 0, 128, 64, SH110X_WHITE);
+    display.setTextColor(SH110X_BLACK, SH110X_WHITE);
+    display.setTextSize(1);
+    display.setCursor(2, 4);
+    display.println(notifTitle.substring(0, 18));
+    display.drawLine(0, 13, 128, 13, SH110X_BLACK);
+    display.setTextColor(SH110X_BLACK);
+    display.setTextSize(1);
+    // Word-wrap message over ~3 lines
+    display.setCursor(2, 16);
+    display.println(notifMsg.substring(0, 21));
+    display.setCursor(2, 26);
+    display.println(notifMsg.substring(21, 42));
+    display.setCursor(2, 36);
+    display.println(notifMsg.substring(42, 63));
+    // Countdown bar
+    long remaining = (long)(notifExpiry - millis());
+    int barW = map(remaining, 0, NOTIF_DURATION_MS, 0, 128);
+    display.fillRect(0, 58, barW, 6, SH110X_BLACK);
+    display.setTextColor(SH110X_WHITE);
+    display.display();
+    return;
+  }
+
+  // Draw the two relevant pages to allow smooth scrolling
+  int currentP = displayPage;
+  int prevP = currentP - 1; if (prevP < 0) prevP = 0;
+  int nextP = currentP + 1; if (nextP >= TOTAL_PAGES) nextP = TOTAL_PAGES - 1;
+
+  int scrollInt = (int)currentScrollX;
+
+  // Draw all pages (only ones strictly visible will matter)
+  for (int i=0; i<TOTAL_PAGES; i++) {
+      int offset_x = scrollInt + (i * 128);
+      // Only draw if within bounds
+      if (offset_x > -128 && offset_x < 128) {
+          switch(i) {
+              case 0: drawPage_Vitals(offset_x); break;
+              case 1: drawPage_GatewayStatus(offset_x); break;
+              case 2: drawPage_LoRaStats(offset_x); break;
+              case 3: drawPage_AlertLog(offset_x); break;
+              case 4: drawPage_SimMode(offset_x); break;
+          }
+      }
+  }
+
+  // Draw dots fixed at bottom
+  int dotX = 128 / 2 - (TOTAL_PAGES * 5) / 2;
+  for (int i = 0; i < TOTAL_PAGES; i++) {
+    if (i == displayPage)
+      display.fillCircle(dotX + i * 5, 62, 2, SH110X_WHITE);
+    else
+      display.drawCircle(dotX + i * 5, 62, 2, SH110X_WHITE);
+  }
+  
+  drawStatusBar();
+  display.display();
+}
+
+void drawStatusBar() {
+  display.fillRect(0, 0, 128, 9, SH110X_WHITE);
+  display.setTextColor(SH110X_BLACK);
+  display.setTextSize(1);
+  display.setCursor(1, 1);
+  display.print(p_timestamp);
+  display.setCursor(60, 1);
+  display.print(WiFi.status() == WL_CONNECTED ? "W" : "A");
+  drawSignalBars(80, 1, loraRssi);
+  display.setTextColor(SH110X_WHITE); 
+}
+
+void drawPage_Vitals(int o) {
+  display.setTextSize(1);
+  display.setCursor(o+0, 11);
+  display.print("VITALS: ");
+  display.print(p_node);
+  
+  display.setCursor(o+0, 21); display.setTextSize(2);
+  display.print("HR:"); display.print(p_hr);
+  display.setCursor(o+0, 39); display.print("O2:"); display.print(p_oxy); display.print("%");
+  
+  display.setTextSize(1);
+  display.drawRoundRect(o+95, 20, 32, 10, 2, SH110X_WHITE);
+  display.setCursor(o+96, 21);
+  display.print(p_worn?" ON ":"OFF");
+}
+
+void drawPage_GatewayStatus(int o) {
+  display.setTextSize(1);
+  display.setCursor(o+0, 11); display.println("GATEWAY STATUS");
+  display.drawLine(o+0, 20, o+128, 20, SH110X_WHITE);
+  display.setCursor(o+0, 23); display.print("WiFi: OK");
+  display.setCursor(o+0, 33); display.print("Temp: "); display.print(gatewayTemp); display.print(" C");
+}
+
+void drawPage_LoRaStats(int o) {
+  display.setTextSize(1);
+  display.setCursor(o+0, 11); display.println("LoRa STATS");
+  display.drawLine(o+0, 20, o+128, 20, SH110X_WHITE);
+  display.setCursor(o+0, 23); display.print("Pkts: "); display.print(totalPackets);
+  display.setCursor(o+0, 33); display.print("RSSI: "); display.print(loraRssi); display.print(" dBm");
+}
+
+void drawPage_AlertLog(int o) {
+  display.setTextSize(1);
+  display.setCursor(o+0, 11); display.println("ALERT LOG");
+  display.drawLine(o+0, 20, o+128, 20, SH110X_WHITE);
+  display.setCursor(o+0, 35); display.print("No alerts.");
+}
+
+void drawPage_SimMode(int o) {
+  display.setTextSize(1);
+  display.setCursor(o+0, 11); display.println("SIM MODE");
+  display.drawLine(o+0, 20, o+128, 20, SH110X_WHITE);
+  display.setCursor(o+0, 23); display.print("Standby.");
+}
+
+void drawEmergencyOverlay() {
+  display.clearDisplay();
+  // Draw an inverted box for the emergency
+  display.fillRect(0, 0, 128, 64, SH110X_WHITE);
+  display.setTextColor(SH110X_BLACK, SH110X_WHITE); // Black text on white background
+  display.setTextSize(2);
+  display.setCursor(16, 15);
+  display.println(p_fall ? "FALL!" : "SOS!");
+  display.setTextSize(1);
+  display.setCursor(20, 40);
+  display.print("PATIENT: "); display.print(p_node);
+  display.setTextColor(SH110X_WHITE, SH110X_BLACK); // Revert back for other pages
+  display.display();
+}
+
+void drawSignalBars(int x, int y, int rssi) {
+  int bars = (rssi < -90) ? 1 : 3;
+  for (int i = 0; i < 4; i++) {
+    if (i < bars) display.fillRect(x + i * 4, y + (3 - i), 3, 1 + i, SH110X_BLACK);
+    else display.drawRect(x + i * 4, y + (3 - i), 3, 1 + i, SH110X_BLACK);
+  }
+}
