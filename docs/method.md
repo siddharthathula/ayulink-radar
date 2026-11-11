@@ -168,7 +168,7 @@ The rhythm model is trained on ECG-derived intervals. The band uses an optical/a
 
 ## References
 
-- Radin JM, Wineinger NE, Topol EJ, Steinhubl SR. Wearable device data and influenza-like illness surveillance. *Lancet Digital Health* 2020. <https://doi.org/10.1016/S2589-7500(20)30171-0>
+- Radin JM, Wineinger NE, Topol EJ, Steinhubl SR. Wearable device data and influenza-like illness surveillance. *Lancet Digital Health* 2020. <https://doi.org/10.1016/S2589-7500(19)30222-5>
 - Quer G, Radin JM, et al. Wearable sensor data and self-reported symptoms for COVID-19 detection. *Nature Medicine* 2021. <https://doi.org/10.1038/s41591-020-1123-x>
 - Scripps DETECT study. <https://detect.scripps.edu>
 - PhysioNet MIT-BIH Atrial Fibrillation Database. <https://physionet.org/content/afdb/1.0.0/>

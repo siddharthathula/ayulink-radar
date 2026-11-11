@@ -22,15 +22,17 @@ const VILLAGE_NAMES = [
   "Yerracheruvu",
 ];
 
-const WARD_NAMES = [
-  "Colony 1",
-  "Colony 2",
-  "Colony 3",
-  "Colony 4",
-  "Colony 5",
-  "Colony 6",
-  "Colony 7",
-  "Colony 8",
+// Real towns around Hyderabad, used only to orient the map. All wearers and
+// outbreaks in the console are simulated; there is no deployment here.
+const CITY_NAMES = [
+  "Patancheru",
+  "Kukatpally",
+  "Medchal",
+  "Secunderabad",
+  "Gachibowli",
+  "Shamshabad",
+  "LB Nagar",
+  "Uppal",
 ];
 
 const SOCIETY_NAMES = ["Tower A", "Tower B", "Tower C", "Tower D", "Tower E", "Tower F"];
@@ -66,21 +68,22 @@ export const PRESETS: Record<Mode, ModePreset> = {
     peoplePerZone: 34,
     bandFraction: 1,
     reportingLagDays: 3,
-    center: [18.1, 79.4],
+    center: [17.31, 78.14],
     cellDegrees: 0.012,
-    fictionalNote: "Fictional hamlet names. No real deployment at this location.",
+    fictionalNote: "Fictional hamlet names, placed in rural Rangareddy near Hyderabad. No real deployment.",
   },
   ward: {
     mode: "ward",
-    label: "Ward",
+    label: "City",
     columns: 4,
-    zones: buildZones("ward", WARD_NAMES, 4),
+    zones: buildZones("ward", CITY_NAMES, 4),
     peoplePerZone: 60,
     bandFraction: 0.5,
     reportingLagDays: 2,
-    center: [17.98, 79.59],
+    center: [17.42, 78.45],
     cellDegrees: 0.006,
-    fictionalNote: "Illustrative ward colonies. No real deployment at this location.",
+    fictionalNote:
+      "Real Hyderabad-area town names for orientation only. Wearers and outbreaks are simulated; no real deployment.",
   },
   society: {
     mode: "society",
@@ -90,9 +93,9 @@ export const PRESETS: Record<Mode, ModePreset> = {
     peoplePerZone: 80,
     bandFraction: 0,
     reportingLagDays: 2,
-    center: [17.44, 78.37],
+    center: [17.4239, 78.3426],
     cellDegrees: 0.0015,
-    fictionalNote: "Illustrative apartment towers. No real deployment at this location.",
+    fictionalNote: "Illustrative apartment towers in Hyderabad's Financial District. No real deployment.",
   },
 };
 

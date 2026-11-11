@@ -14,6 +14,11 @@ of writing; `web/package-lock.json` and `ml/requirements.txt` are authoritative.
 | Recharts | 3.10.1 | MIT | https://recharts.org | HR and evaluation charts |
 | Leaflet | 1.9.4 | BSD-2-Clause | https://leafletjs.com | Radar map |
 | lucide-react | 1.72.0 | ISC | https://lucide.dev | Icons |
+| @fontsource-variable/inter | 5.3.0 | OFL-1.1 (font) / MIT (package) | https://fontsource.org/fonts/inter | Body font, self-hosted |
+| @fontsource-variable/plus-jakarta-sans | 5.3.0 | OFL-1.1 (font) / MIT (package) | https://fontsource.org/fonts/plus-jakarta-sans | Heading font, self-hosted |
+| @fontsource-variable/jetbrains-mono | 5.3.0 | OFL-1.1 (font) / MIT (package) | https://fontsource.org/fonts/jetbrains-mono | Numbers, self-hosted |
+| @fontsource/noto-sans-telugu | 5.3.0 | OFL-1.1 (font) / MIT (package) | https://fontsource.org/fonts/noto-sans-telugu | Telugu notes |
+| @fontsource/noto-sans-devanagari | 5.3.0 | OFL-1.1 (font) / MIT (package) | https://fontsource.org/fonts/noto-sans-devanagari | Hindi notes |
 | Vitest | 5.1.0 | MIT | https://vitest.dev | Unit and parity tests |
 | tsx | 4.23.15 | MIT | https://tsx.is | Running TypeScript scripts |
 | TypeScript | 5.x | Apache-2.0 | https://typescriptlang.org | Types |
@@ -62,3 +67,12 @@ The wristband firmware under `firmware/ayulink_band/`, and the hardware in the
 `gateway.jpg` photo, were built by the AyuLink team before INNOVEX 2026. They
 are included as prior work with the team's permission. The detection engine,
 cluster radar, rhythm model, evaluation and this web application are new.
+
+## Live context data
+
+| Name | License | URL | Used for |
+|---|---|---|---|
+| Open-Meteo forecast API | CC BY 4.0 (data), free non-commercial use, no key | https://open-meteo.com | Live temperature pill in the operator console. Real data, labelled as real, shown beside simulated surveillance data. The console works without it. |
+
+Weather data by Open-Meteo.com.
+

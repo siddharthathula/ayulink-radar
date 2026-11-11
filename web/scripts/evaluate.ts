@@ -726,7 +726,7 @@ function writeMethodDoc(data: {
   lines.push("## References");
   lines.push("");
   lines.push(
-    "- Radin JM, Wineinger NE, Topol EJ, Steinhubl SR. Wearable device data and influenza-like illness surveillance. *Lancet Digital Health* 2020. <https://doi.org/10.1016/S2589-7500(20)30171-0>",
+    "- Radin JM, Wineinger NE, Topol EJ, Steinhubl SR. Wearable device data and influenza-like illness surveillance. *Lancet Digital Health* 2020. <https://doi.org/10.1016/S2589-7500(19)30222-5>",
   );
   lines.push(
     "- Quer G, Radin JM, et al. Wearable sensor data and self-reported symptoms for COVID-19 detection. *Nature Medicine* 2021. <https://doi.org/10.1038/s41591-020-1123-x>",
