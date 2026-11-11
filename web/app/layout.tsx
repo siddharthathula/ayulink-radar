@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AyuLink Radar — it knows your normal, and when your street isn't",
     description:
-      "AI early warning: personal baselines, neighbourhood cluster alerts, a 3-day outbreak forecast and a grounded assistant. Modular band, works offline.",
+      "AI early warning: personal baselines, neighbourhood cluster alerts, a 3-day escalation forecast and a grounded assistant. Modular band, works offline.",
     type: "website",
   },
 };

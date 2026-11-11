@@ -3,171 +3,171 @@
   "question": "Will this zone reach ALERT within the next 3 days? (zones already on alert excluded)",
   "data": "Simulated. Train seeds 1-100, held-out test seeds 101-200. 3 modes x 3 scenarios x wear 0.6/0.8/1.0.",
   "model": "Logistic regression, 9 features, class-balanced, L2. Pure TypeScript.",
-  "threshold": 0.87,
+  "threshold": 0.88,
   "test": {
-    "rows": 502279,
-    "positives": 15074,
-    "auroc": 0.944,
-    "auprc": 0.432,
-    "precision": 0.381,
-    "recall": 0.622,
-    "f1": 0.472,
+    "rows": 504118,
+    "positives": 15134,
+    "auroc": 0.949,
+    "auprc": 0.435,
+    "precision": 0.4,
+    "recall": 0.625,
+    "f1": 0.487,
     "baselineWatchOnly": {
-      "precision": 0.316,
-      "recall": 0.329,
-      "f1": 0.322
+      "precision": 0.336,
+      "recall": 0.317,
+      "f1": 0.326
     },
-    "baselineEvidenceAuroc": 0.915,
+    "baselineEvidenceAuroc": 0.918,
     "prevalence": 0.03
   },
   "byMode": {
     "village": {
-      "rows": 150644,
-      "positives": 5324,
-      "auroc": 0.944,
-      "auprc": 0.464,
-      "precision": 0.394,
-      "recall": 0.694,
-      "f1": 0.503,
+      "rows": 151332,
+      "positives": 5126,
+      "auroc": 0.948,
+      "auprc": 0.45,
+      "precision": 0.397,
+      "recall": 0.682,
+      "f1": 0.502,
       "baselineWatchOnly": {
-        "precision": 0.432,
-        "recall": 0.357,
-        "f1": 0.391
+        "precision": 0.426,
+        "recall": 0.324,
+        "f1": 0.368
       },
-      "baselineEvidenceAuroc": 0.919,
-      "prevalence": 0.035
+      "baselineEvidenceAuroc": 0.92,
+      "prevalence": 0.034
     },
     "ward": {
-      "rows": 201217,
-      "positives": 5507,
-      "auroc": 0.953,
-      "auprc": 0.476,
-      "precision": 0.42,
-      "recall": 0.638,
-      "f1": 0.507,
+      "rows": 201921,
+      "positives": 5622,
+      "auroc": 0.957,
+      "auprc": 0.487,
+      "precision": 0.447,
+      "recall": 0.639,
+      "f1": 0.526,
       "baselineWatchOnly": {
-        "precision": 0.341,
-        "recall": 0.304,
-        "f1": 0.321
+        "precision": 0.373,
+        "recall": 0.301,
+        "f1": 0.333
       },
-      "baselineEvidenceAuroc": 0.922,
-      "prevalence": 0.027
+      "baselineEvidenceAuroc": 0.924,
+      "prevalence": 0.028
     },
     "society": {
-      "rows": 150418,
-      "positives": 4243,
-      "auroc": 0.929,
-      "auprc": 0.338,
-      "precision": 0.314,
-      "recall": 0.51,
-      "f1": 0.389,
+      "rows": 150865,
+      "positives": 4386,
+      "auroc": 0.938,
+      "auprc": 0.36,
+      "precision": 0.347,
+      "recall": 0.539,
+      "f1": 0.422,
       "baselineWatchOnly": {
-        "precision": 0.217,
-        "recall": 0.326,
-        "f1": 0.261
+        "precision": 0.247,
+        "recall": 0.328,
+        "f1": 0.282
       },
-      "baselineEvidenceAuroc": 0.901,
-      "prevalence": 0.028
+      "baselineEvidenceAuroc": 0.91,
+      "prevalence": 0.029
     }
   },
   "byScenario": {
     "calm": {
-      "rows": 173977,
-      "positives": 58,
-      "auroc": 0.826,
-      "auprc": 0.05,
-      "precision": 0.027,
-      "recall": 0.328,
-      "f1": 0.049,
+      "rows": 173986,
+      "positives": 34,
+      "auroc": 0.866,
+      "auprc": 0.012,
+      "precision": 0.024,
+      "recall": 0.294,
+      "f1": 0.044,
       "baselineWatchOnly": {
-        "precision": 0.096,
-        "recall": 0.241,
-        "f1": 0.137
+        "precision": 0.069,
+        "recall": 0.206,
+        "f1": 0.103
       },
-      "baselineEvidenceAuroc": 0.818,
+      "baselineEvidenceAuroc": 0.86,
       "prevalence": 0
     },
     "cluster": {
-      "rows": 167016,
-      "positives": 3144,
-      "auroc": 0.935,
-      "auprc": 0.379,
-      "precision": 0.423,
-      "recall": 0.514,
-      "f1": 0.464,
+      "rows": 167902,
+      "positives": 3125,
+      "auroc": 0.944,
+      "auprc": 0.407,
+      "precision": 0.452,
+      "recall": 0.51,
+      "f1": 0.479,
       "baselineWatchOnly": {
-        "precision": 0.599,
-        "recall": 0.302,
-        "f1": 0.401
+        "precision": 0.582,
+        "recall": 0.294,
+        "f1": 0.391
       },
-      "baselineEvidenceAuroc": 0.943,
+      "baselineEvidenceAuroc": 0.947,
       "prevalence": 0.019
     },
     "spread": {
-      "rows": 161286,
-      "positives": 11872,
-      "auroc": 0.913,
-      "auprc": 0.466,
-      "precision": 0.385,
-      "recall": 0.652,
-      "f1": 0.484,
+      "rows": 162230,
+      "positives": 11975,
+      "auroc": 0.917,
+      "auprc": 0.461,
+      "precision": 0.398,
+      "recall": 0.656,
+      "f1": 0.496,
       "baselineWatchOnly": {
-        "precision": 0.286,
-        "recall": 0.336,
-        "f1": 0.309
+        "precision": 0.307,
+        "recall": 0.323,
+        "f1": 0.315
       },
-      "baselineEvidenceAuroc": 0.859,
+      "baselineEvidenceAuroc": 0.866,
       "prevalence": 0.074
     }
   },
   "earlyWarning": {
-    "outbreakRunsWithAlert": 1743,
-    "warnedBeforeAlert": 1523,
-    "warnedShare": 0.874,
+    "outbreakRunsWithAlert": 1701,
+    "warnedBeforeAlert": 1483,
+    "warnedShare": 0.872,
     "medianDaysEarlier": 2
   },
   "falseWarnings": {
-    "perZonePer30Days": 0.123,
-    "calmZoneDays": 173977
+    "perZonePer30Days": 0.073,
+    "calmZoneDays": 173986
   },
   "stress": {
     "heatwave": {
-      "rows": 56346,
-      "positives": 2583,
+      "rows": 56381,
+      "positives": 2545,
       "auroc": 0.822,
-      "auprc": 0.186,
-      "precision": 0.214,
-      "recall": 0.365,
-      "f1": 0.27,
+      "auprc": 0.197,
+      "precision": 0.235,
+      "recall": 0.373,
+      "f1": 0.288,
       "baselineWatchOnly": {
-        "precision": 0.245,
-        "recall": 0.401,
-        "f1": 0.304
+        "precision": 0.243,
+        "recall": 0.343,
+        "f1": 0.284
       },
-      "baselineEvidenceAuroc": 0.816,
-      "prevalence": 0.046,
+      "baselineEvidenceAuroc": 0.805,
+      "prevalence": 0.045,
       "falseWarnings": {
-        "perZonePer30Days": 2.031,
-        "calmZoneDays": 28543
+        "perZonePer30Days": 1.824,
+        "calmZoneDays": 28503
       }
     },
     "noisy": {
-      "rows": 57857,
-      "positives": 224,
-      "auroc": 0.951,
-      "auprc": 0.244,
-      "precision": 0.231,
-      "recall": 0.518,
-      "f1": 0.32,
+      "rows": 57952,
+      "positives": 95,
+      "auroc": 0.948,
+      "auprc": 0.121,
+      "precision": 0.131,
+      "recall": 0.421,
+      "f1": 0.2,
       "baselineWatchOnly": {
-        "precision": 0.304,
-        "recall": 0.201,
-        "f1": 0.242
+        "precision": 0.2,
+        "recall": 0.158,
+        "f1": 0.176
       },
-      "baselineEvidenceAuroc": 0.956,
-      "prevalence": 0.004,
+      "baselineEvidenceAuroc": 0.941,
+      "prevalence": 0.002,
       "falseWarnings": {
-        "perZonePer30Days": 0.053,
+        "perZonePer30Days": 0.018,
         "calmZoneDays": 29000
       }
     }
@@ -176,47 +176,47 @@
     {
       "key": "excess",
       "label": "Excess over this zone's normal level",
-      "weight": 2.424
-    },
-    {
-      "key": "evidence",
-      "label": "Strength of cluster evidence",
-      "weight": -0.892
-    },
-    {
-      "key": "regionWide",
-      "label": "Region-wide shift (heat, festival)",
-      "weight": -0.587
-    },
-    {
-      "key": "neighborLevel",
-      "label": "Neighbouring zone on watch or alert",
-      "weight": 0.496
+      "weight": 2.482
     },
     {
       "key": "flagRate",
       "label": "Share of wearers drifting today",
-      "weight": 0.446
+      "weight": 1.082
     },
     {
       "key": "windowRate",
       "label": "Drifting share over the 3-day window",
-      "weight": -0.227
+      "weight": -0.894
+    },
+    {
+      "key": "evidence",
+      "label": "Strength of cluster evidence",
+      "weight": -0.848
+    },
+    {
+      "key": "regionWide",
+      "label": "Region-wide shift (heat, festival)",
+      "weight": -0.556
+    },
+    {
+      "key": "neighborLevel",
+      "label": "Neighbouring zone on watch or alert",
+      "weight": 0.396
     },
     {
       "key": "neighborRate",
       "label": "Drifting share in neighbouring zones",
-      "weight": 0.128
+      "weight": 0.256
     },
     {
       "key": "flagRise",
       "label": "Rise in drifting wearers vs 2 days ago",
-      "weight": 0.108
+      "weight": -0.125
     },
     {
       "key": "watch",
       "label": "Zone already on watch",
-      "weight": -0.069
+      "weight": -0.101
     }
   ],
   "caveats": [
@@ -224,5 +224,5 @@
     "The label is the engine's own ALERT, so this forecasts escalation, not disease.",
     "Stress conditions (heatwave, noisy sensors) were never seen in training."
   ],
-  "runtimeSeconds": 346
+  "runtimeSeconds": 302
 }

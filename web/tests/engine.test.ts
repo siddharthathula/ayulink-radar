@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeDrift } from "../lib/engine/baseline";
-import { binomTail, computeP0 } from "../lib/engine/cluster";
+import { binomTail, computeP0, zoneWindowStats } from "../lib/engine/cluster";
 import { DEFAULT_CONFIG, MODES } from "../lib/engine/presets";
 import { dayQuality, rrWindowQuality } from "../lib/engine/signalQuality";
 import { simulate } from "../lib/engine/simulate";
@@ -152,6 +152,18 @@ describe("engine determinism and cluster statistics", () => {
     ];
     const points = computeDrift(makeObs(values, valid));
     expect(points.some((point) => point.flagged)).toBe(false);
+  });
+
+  it("only counts flagged people who are also in the denominator", () => {
+    const ids = ["A", "B"];
+    const days = 5;
+    const flags = { A: [false, false, true, false, false], B: [false, false, false, false, true] };
+    // A is flagged on day 2 but has only 1 valid day in the window [2,4]: not eligible.
+    const valid = { A: [true, true, true, false, false], B: [true, true, true, true, true] };
+    const { n, k } = zoneWindowStats(ids, { flags, valid }, days);
+    expect(n[4]).toBe(1);
+    expect(k[4]).toBe(1); // only B
+    for (let d = 0; d < days; d++) expect(k[d]).toBeLessThanOrEqual(n[d]);
   });
 
   it("uses the 3-day unique-person rate for p0, not a daily rate", () => {

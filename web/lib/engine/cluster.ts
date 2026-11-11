@@ -43,7 +43,8 @@ function prefix(values: boolean[]): number[] {
  * Per-day n and k for one zone using the 3-day unique-person window.
  *
  * n = people with >= 2 valid days in [day-2, day].
- * k = unique people flagged on any day in [day-2, day].
+ * k = people counted in n who were flagged on any day in [day-2, day].
+ *     (k must be a subset of n, or the binomial p-value is too small.)
  *
  * Prefix sums make this O(people * days) per zone, not O(days * people * 3).
  */
@@ -60,7 +61,8 @@ export function zoneWindowStats(
     for (let day = 0; day < days; day++) {
       const start = Math.max(0, day - 2);
       const validCount = valid[day + 1] - valid[start];
-      if (validCount >= 2) n[day] += 1;
+      if (validCount < 2) continue;
+      n[day] += 1;
       if (flags[day + 1] - flags[start] > 0) k[day] += 1;
     }
   }
@@ -100,7 +102,8 @@ export function windowStats(
       if (valid[index]) validCount += 1;
       if (flags[index]) flagged = true;
     }
-    if (validCount >= 2) n += 1;
+    if (validCount < 2) continue;
+    n += 1;
     if (flagged) k += 1;
   }
   return { n, k };

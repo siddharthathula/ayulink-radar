@@ -42,11 +42,11 @@ Bands work **offline over LoRa**; the same system runs on smartwatches in a city
 |---|---|
 | **The problem** | Fever outbreaks are noticed only after sick people reach a clinic. In villages far from a PHC, that is days too late. |
 | **The idea** | Everyone's heart beats a little faster when an infection starts. One person's rise means little. **Many people in the same hamlet rising together** is a warning. |
-| **What we built** | A modular wristband + LoRa gateway (real hardware), a detection engine, **two trained AI models** (3-day outbreak forecaster, rhythm screen), a grounded **operator assistant** (text + voice), an operator console, a band configurator, a field app for ASHA workers, and 6 APIs. |
-| **The AI** | 8 pieces from first reading to visit list. The forecaster warned before the alert in **87%** of outbreak zones, a median **2 days** early (AUROC **0.944** on held-out runs). See [The AI inside](#the-ai-inside). |
+| **What we built** | A modular wristband + LoRa gateway (real hardware), a detection engine, **two trained AI models** (3-day escalation forecaster, rhythm screen), a grounded **operator assistant** (text + voice), an operator console, a band configurator, a field app for ASHA workers, and 6 APIs. |
+| **The AI** | 8 pieces from first reading to visit list. The forecaster warned before the alert in **87%** of outbreak zones, a median **2 days** early (AUROC **0.949** on held-out runs). See [The AI inside](#the-ai-inside). |
 | **For whom** | Villages under a PHC, elders living alone, office workers, heart patients after discharge, outdoor workers in heat, camps and mass events — one band, [configured per person](#one-band-built-around-each-person). |
 | **Where** | Shown around **Hyderabad**: rural Rangareddy hamlets, 8 towns from Patancheru to Uppal, and apartment towers in the Financial District. |
-| **Result (simulated)** | In a village with 80% daily band wear, **97.5%** of seeded clusters were caught, a median **3 days** before simulated clinic detection. |
+| **Result (simulated)** | In a village with 80% daily band wear, **95.0%** of seeded clusters were caught, a median **3 days** before simulated clinic detection, with 0.004 false alerts per zone per month. |
 | **Business** | Recurring software for public health first, then families, employers, hospitals and campuses. See [Business model](#business-model). |
 | **Honest limit** | Population data is simulated. Needs ≥ 60% daily wear. Not a medical device. |
 
@@ -149,7 +149,7 @@ explain, test and run offline. Full page: [/ai](https://ayulink-radar.vercel.app
 | 1 | Signal quality gate | Automated QC | Drops readings from a loose strap or heavy movement. Bad data never becomes an alert. |
 | 2 | Personal baseline | Per-person anomaly detection | Learns *your* normal resting heart rate; flags a steady drift from yourself. |
 | 3 | Cluster detection | Population anomaly detection | Many neighbours drifting together → watch / alert, with a heat/festival guard. |
-| 4 | **3-day outbreak forecaster** | **Trained ML model** | Predicts which zone will reach alert in the next 3 days, with reasons. |
+| 4 | **3-day escalation forecaster** | **Trained ML model** | Predicts which zone will reach alert in the next 3 days, with reasons. |
 | 5 | Irregular pulse screen | Trained ML model | Beat-to-beat timing → irregular-rhythm screen. Python, TypeScript and ESP32 C, parity-tested. |
 | 6 | Visit-first ranking | Explainable triage scoring | One ordered list of who to see, each with plain-word reasons. |
 | 7 | **Ask AyuLink assistant** | Grounded conversational AI | "Brief me", "which zone is next?", "who first?" — text or voice, works offline. |
@@ -253,52 +253,85 @@ Full method: [`docs/method.md`](docs/method.md) and the [Method page](https://ay
 
 | Setting | Clusters detected (95% CI) | Median lead vs simulated clinic | False alerts per zone per 30 days |
 |---|---|---|---|
-| Village (6 Rangareddy hamlets × 34) | **97.5%** (95.0–99.5) | **3 days** earlier | 0.005 |
-| City (8 towns around Hyderabad × 60) | **95.0%** (92.0–97.5) | **1 day** earlier | 0.006 |
-| Society (6 Financial District towers × 80) | **94.5%** (91.5–97.5) | **1 day** earlier | 0.013 |
+| Village (6 Rangareddy hamlets × 34) | **95.0%** (91.5–97.5) | **3 days** earlier | 0.0039 |
+| City (8 towns around Hyderabad × 60) | **92.5%** (88.5–96.0) | **1 day** earlier | 0.0035 |
+| Society (6 Financial District towers × 80) | **91.0%** (87.0–95.0) | same day | 0.0094 |
 
-A naive fixed threshold (resting HR ≥ 90 bpm) detected **0%** of village clusters at 80% wear.
-Personal baselines are what make cheap sensors useful.
+**Same test scenarios, four detectors** (village, 80% wear, held-out seeds 101–300):
+
+| Detector | Clusters detected | Median lead | False alerts / zone / 30 d |
+|---|---|---|---|
+| D1 · Fixed threshold (resting HR ≥ 90, zone alert at 4 people) | 0.0% | — | 0.0000 |
+| D2 · Personal baseline, zone alert at 4 drifting people (no statistics) | 100.0% | **4 days** earlier | **0.072** |
+| D3 · Personal baseline + cluster test | 95.0% | **3 days** earlier | 0.0039 |
+| **D4 · D3 + heat/festival guard (shipped)** | **95.0%** | **3 days** earlier | **0.0039** |
+
+Personal baselines make cheap sensors useful (D1 → D2). The cluster test cuts false alerts
+~18× for a small loss in sensitivity and lead time (D2 → D3/D4).
 
 ### It only works if people wear the band
 
 | Daily wear (village) | 100% | 80% | 60% | 40% |
 |---|---|---|---|---|
-| Clusters detected | 95.5% | 97.5% | 71.5% | **1.0%** |
+| Clusters detected | 95.5% | 95.0% | 54.5% | **0.0%** |
 
-**Below about 60% daily wear the community signal fades.** This is the most important operational
-requirement, and the first thing a pilot must measure.
+**The community signal needs about 80% daily wear.** At 60% it catches roughly half of clusters
+(54.5%), at 40% nothing. This is the most important operational requirement, and the first
+thing a pilot must measure.
 
 ### Stress tests (village, 80% wear)
 
 | Scenario | What we tested | Result |
 |---|---|---|
-| Fast spread | Higher transmission between neighbouring hamlets | 100% detected, 3 days earlier |
-| Isolated illness | Many unrelated sick people, no outbreak | 0.006 false alerts / zone / 30 d |
-| Heatwave | +3 bpm for everyone for 5 days | 93% detected, but **0.63 false alerts / zone / 30 d** — the region-wide guard needs work |
-| Noisy sensors | Heavy motion and contact artefact | **17% detected** — signal quality matters |
+| Fast spread | Higher transmission between neighbouring hamlets | 99.0% detected, 3 days earlier |
+| Isolated illness | Many unrelated sick people, no outbreak | 0.0047 false alerts / zone / 30 d |
+| Heatwave | +3 bpm for everyone for 5 days | 92.0% detected, but **0.64 false alerts / zone / 30 d** — the region-wide guard needs work |
+| Noisy sensors | Heavy motion and contact artefact | **9.0% detected** — signal quality matters |
 
-### 3-day AI outbreak forecaster
+### Calibration: does the cluster test keep its promise?
+
+Calm runs only (no outbreak), held-out seeds 101–300, region-wide guard **off** (raw test). Honest
+p-values mean the observed share with p ≤ t stays at or below t. Bonferroni corrects for zones, not
+for testing every day, so we also show how often a whole calm 32-day run raises an alert.
+
+| Setting · wear | P(p ≤ 0.01) | P(p ≤ 0.05) | Alert rate per test (nominal) | Calm runs with ≥1 alert | … with ≥1 watch |
+|---|---|---|---|---|---|
+| village · 80% | 0.0028 | 0.0155 | 0.0001 (0.0002) | 2.5% | 12.5% |
+| city · 80% | 0.0043 | 0.0201 | 0.0001 (0.0001) | 1.5% | 10.5% |
+| society · 80% | 0.0072 | 0.0328 | 0.0003 (0.0002) | 3.0% | 16.5% |
+| village · 60% | 0.0014 | 0.0121 | 0 (0.0002) | 0.0% | 1.0% |
+| city · 60% | 0.0009 | 0.0092 | 0 (0.0001) | 0.5% | 3.0% |
+| society · 60% | 0.0016 | 0.0098 | 0 (0.0002) | 0.5% | 5.5% |
+
+P-values are conservative almost everywhere. Exception: society at 80% wear fires alerts slightly
+above its per-test promise, because one person's flag persists for days and neighbours aren't fully
+independent. Source: [`web/public/data/calibration.json`](web/public/data/calibration.json).
+
+> **Fixed 11 Nov 2026.** The flagged count *k* could include people who weren't in the denominator *n*
+> (fewer than 2 valid days in the window), making p-values too small on ~12% of zone-days. *k* is now
+> restricted to eligible people, a test guards it, and every number in this README was regenerated.
+
+### 3-day zone escalation forecaster
 
 Logistic model, 9 zone-level features, trained on simulated seeds 1–100 and tested on **held-out
-seeds 101–200** (3 settings × 3 scenarios × wear 0.6 / 0.8 / 1.0; 502,279 zone-days).
+seeds 101–200** (3 settings × 3 scenarios × wear 0.6 / 0.8 / 1.0; 504,118 zone-days).
 Question: *will this zone reach ALERT within 3 days?* Source:
 [`web/public/data/forecast_eval.json`](web/public/data/forecast_eval.json), produced by
 [`web/scripts/train-forecast.ts`](web/scripts/train-forecast.ts).
 
 | Held-out test | AI forecaster | Without AI |
 |---|---|---|
-| AUROC | **0.944** | 0.915 (cluster p-value alone) |
-| F1 | **0.472** | 0.322 ("zone on watch" rule) |
-| Recall | **0.622** | 0.329 |
+| AUROC | **0.949** | 0.918 (cluster p-value alone) |
+| F1 | **0.487** | 0.326 ("zone on watch" rule) |
+| Recall | **0.625** | 0.317 |
 | Warned before the alert | **87%** of outbreak zones, median **2 days** early | — |
-| False warnings in calm runs | 0.123 per zone per 30 days | — |
+| False warnings in calm runs | 0.073 per zone per 30 days | — |
 
-By setting: village AUROC 0.944, city 0.953, society 0.929.
+By setting: village AUROC 0.948, city 0.957, society 0.938.
 In plain words: about 4 in 10 high-risk warnings become an alert within 3 days; the rest cost one extra visit.
 
 **Weak spot, published:** under a heatwave (never seen in training) AUROC drops to
-0.822 with **2.031 false warnings per zone per 30 days**. Noisy sensors hold up (AUROC 0.951).
+0.822 with **1.824 false warnings per zone per 30 days**. Noisy sensors hold up (AUROC 0.948).
 The label is the engine's own alert, so this forecasts *escalation*, not disease.
 
 ### Irregular-rhythm screening model
@@ -491,7 +524,7 @@ Built by our team and bench-tested. Three wristbands and one gateway exist.
 | **Problem relevance (PS 01)** | Early detection → personal drift + cluster alert + rhythm screening. Accessible → offline LoRa, low-cost band, local-language notes, field app. |
 | **Innovation & originality** | Population-level detection from cheap wearables at hamlet scale; one engine for village / city / society; one model in three runtimes. See [§4](#4-what-is-new--and-what-is-not). |
 | **Technical implementation** | Real firmware + gateway, two trained models with held-out evaluation, a statistical engine, a modular band configurator, 6 APIs, 47 tests, CI, reproducible evaluation. |
-| **AI / intelligence** | 8 AI pieces end to end: trained **3-day outbreak forecaster** (AUROC 0.944, beats the non-AI baseline), trained rhythm classifier (AUROC 0.989 on held-out records), statistical cluster detection, grounded **Ask AyuLink** assistant (text + voice, offline), fact-locked multilingual notes. See [The AI inside](#the-ai-inside). |
+| **AI / intelligence** | 8 AI pieces end to end: trained **3-day escalation forecaster** (AUROC 0.949, beats the non-AI baseline), trained rhythm classifier (AUROC 0.989 on held-out records), statistical cluster detection, grounded **Ask AyuLink** assistant (text + voice, offline), fact-locked multilingual notes. See [The AI inside](#the-ai-inside). |
 | **Business viability** | Six customer segments, recurring revenue, sourced market size, GTM from one PHC pilot, risks and mitigations. See [Business model](#business-model). |
 | **Real-world impact** | ASHA-first workflow, situation report for PHCs, seasonal and mass-gathering use cases, India-scale rollout path. |
 | **Feasibility** | [§7](#7-feasibility): what is built, what is pending, what it costs, what it needs (≥ 60% daily wear). |
@@ -520,8 +553,8 @@ npm run dev          # http://localhost:3000
 npm test             # 47 tests: engine, forecaster, assistant, configurator, rhythm parity, API
 npm run lint         # 0 errors
 npm run build        # production build
-npx tsx scripts/evaluate.ts        # regenerate the detection numbers in §6 (a few minutes)
-npx tsx scripts/train-forecast.ts  # retrain + re-evaluate the 3-day forecaster (~6 minutes)
+npm run eval:all     # one command: detection grid, calibration, forecaster (~11 minutes)
+# or one at a time: npm run eval:detect | eval:calibrate | eval:forecast
 ```
 
 **Try the API**

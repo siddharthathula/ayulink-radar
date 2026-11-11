@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-11T09:44:05.852Z",
+  "generatedAt": "2026-11-11T17:41:18.091Z",
   "meta": {
     "tuningSeeds": "1-100",
     "testSeeds": "101-300",
     "stressSeeds": "101-200",
     "noiseSeeds": "101-200",
     "testSeedNote": "Full specified test set. All reported performance numbers use test seeds only; tuning used seeds 1-100.",
-    "runtimeSeconds": 267,
+    "runtimeSeconds": 310,
     "bootstrapResamples": 1000,
     "alertDefinition": "zone level alert; detection before outbreakDay + 14",
     "specificityDefinition": "share of calm zone-days on/after day 28 with no alert",
@@ -22,7 +22,7 @@
     "seeds": "1-100",
     "wearRate": 0.8,
     "targetFalseAlertsPerZonePer30d": 0.2,
-    "maxFalseAlertsPerZonePer30d": 0.0125,
+    "maxFalseAlertsPerZonePer30d": 0.009375,
     "passed": true,
     "rows": [
       {
@@ -31,11 +31,11 @@
       },
       {
         "mode": "ward",
-        "falseAlertsPerZonePer30d": 0.0046875
+        "falseAlertsPerZonePer30d": 0.001171875
       },
       {
         "mode": "society",
-        "falseAlertsPerZonePer30d": 0.0125
+        "falseAlertsPerZonePer30d": 0.009375
       }
     ],
     "note": "No threshold was changed after seeing the test set. The pre-registered CLUSTER thresholds were used."
@@ -85,17 +85,17 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.9948697916666667,
+      "zoneDaySpecificity": 0.9952083333333334,
       "specificityCI": [
-        0.993984375,
-        0.995703125
+        0.9943483072916667,
+        0.9960162760416666
       ],
-      "precision": 0.9472900536033353,
+      "precision": 0.9504830917874396,
       "precisionCI": [
-        0.9348207802311796,
-        0.9585504379124994
+        0.9384276726997139,
+        0.9613844684612062
       ],
-      "falseAlertsPerZonePer30d": 0.15390625,
+      "falseAlertsPerZonePer30d": 0.14375,
       "medianLeadDays": 6,
       "leadCI": [
         5,
@@ -105,8 +105,8 @@
       "leadP75": 7,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 3358,
-      "nActiveAlertZoneDays": 3181,
+      "nAlertZoneDays": 3312,
+      "nActiveAlertZoneDays": 3148,
       "nLeads": 200
     },
     {
@@ -124,10 +124,10 @@
         0.999921875,
         1
       ],
-      "precision": 0.9956843403205918,
+      "precision": 0.996776273372018,
       "precisionCI": [
-        0.9913846153846154,
-        0.9993683079884658
+        0.9929881538951806,
+        0.9993650994957273
       ],
       "falseAlertsPerZonePer30d": 0.00078125,
       "medianLeadDays": 3,
@@ -136,11 +136,11 @@
         3
       ],
       "leadP25": 1,
-      "leadP75": 4.25,
+      "leadP75": 4,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1622,
-      "nActiveAlertZoneDays": 1615,
+      "nAlertZoneDays": 1551,
+      "nActiveAlertZoneDays": 1546,
       "nLeads": 200
     },
     {
@@ -151,30 +151,30 @@
       "detectionRate": 0.955,
       "detectionRateCI": [
         0.925,
-        0.985
+        0.98
       ],
       "zoneDaySpecificity": 0.9999739583333334,
       "specificityCI": [
         0.999921875,
         1
       ],
-      "precision": 0.9956843403205918,
+      "precision": 0.996776273372018,
       "precisionCI": [
-        0.9909195458873034,
-        0.9987897082845789
+        0.992934904497271,
+        0.9993706832745566
       ],
       "falseAlertsPerZonePer30d": 0.00078125,
       "medianLeadDays": 3,
       "leadCI": [
         3,
-        3.5
+        3
       ],
       "leadP25": 1,
-      "leadP75": 4.25,
+      "leadP75": 4,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1622,
-      "nActiveAlertZoneDays": 1615,
+      "nAlertZoneDays": 1551,
+      "nActiveAlertZoneDays": 1546,
       "nLeads": 200
     },
     {
@@ -215,18 +215,18 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.99671875,
+      "zoneDaySpecificity": 0.9976041666666666,
       "specificityCI": [
-        0.9958326822916667,
-        0.9976041666666666
+        0.9968743489583333,
+        0.9983072916666667
       ],
-      "precision": 0.9651707970529136,
+      "precision": 0.9713768115942029,
       "precisionCI": [
-        0.9550572959777354,
-        0.9744510237690486
+        0.9617011366321839,
+        0.9798201831647997
       ],
-      "falseAlertsPerZonePer30d": 0.0984375,
-      "medianLeadDays": 5,
+      "falseAlertsPerZonePer30d": 0.071875,
+      "medianLeadDays": 4,
       "leadCI": [
         4,
         5
@@ -235,8 +235,8 @@
       "leadP75": 6,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2986,
-      "nActiveAlertZoneDays": 2882,
+      "nAlertZoneDays": 2760,
+      "nActiveAlertZoneDays": 2681,
       "nLeads": 200
     },
     {
@@ -244,144 +244,144 @@
       "wearRate": 0.8,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
-      "detectionRate": 0.975,
+      "detectionRate": 0.95,
       "detectionRateCI": [
-        0.95,
-        0.995
+        0.92,
+        0.98
       ],
-      "zoneDaySpecificity": 0.99984375,
+      "zoneDaySpecificity": 0.9998697916666667,
       "specificityCI": [
-        0.9996875,
+        0.9997395833333333,
         0.9999739583333334
       ],
-      "precision": 0.9926421404682274,
+      "precision": 0.9929356357927787,
       "precisionCI": [
-        0.9858676261459154,
-        0.9979426326212446
+        0.9860081861266695,
+        0.9984002859412231
       ],
-      "falseAlertsPerZonePer30d": 0.0046875,
+      "falseAlertsPerZonePer30d": 0.00390625,
       "medianLeadDays": 3,
       "leadCI": [
-        3,
+        2,
         3
       ],
       "leadP25": 1,
-      "leadP75": 5,
+      "leadP75": 4,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1495,
-      "nActiveAlertZoneDays": 1484,
-      "nLeads": 199
+      "nAlertZoneDays": 1274,
+      "nActiveAlertZoneDays": 1265,
+      "nLeads": 195
     },
     {
       "mode": "village",
       "wearRate": 0.8,
       "detector": "D4",
       "detectorName": "Full engine",
-      "detectionRate": 0.975,
+      "detectionRate": 0.95,
       "detectionRateCI": [
-        0.95,
-        0.995
+        0.915,
+        0.9751249999999999
       ],
-      "zoneDaySpecificity": 0.99984375,
+      "zoneDaySpecificity": 0.9998697916666667,
       "specificityCI": [
-        0.9996875,
+        0.9997395833333333,
         0.9999739583333334
       ],
-      "precision": 0.9926421404682274,
+      "precision": 0.9929356357927787,
       "precisionCI": [
-        0.9859062228281797,
-        0.997984106969468
+        0.986001744603203,
+        0.9984167179040575
       ],
-      "falseAlertsPerZonePer30d": 0.0046875,
+      "falseAlertsPerZonePer30d": 0.00390625,
       "medianLeadDays": 3,
       "leadCI": [
-        3,
+        2,
         3
       ],
       "leadP25": 1,
-      "leadP75": 5,
-      "nClusterRuns": 200,
-      "nCalmRuns": 200,
-      "nAlertZoneDays": 1495,
-      "nActiveAlertZoneDays": 1484,
-      "nLeads": 199
-    },
-    {
-      "mode": "village",
-      "wearRate": 0.6,
-      "detector": "D1",
-      "detectorName": "Fixed threshold",
-      "detectionRate": 0,
-      "detectionRateCI": [
-        0,
-        0
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": null,
-      "precisionCI": null,
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": null,
-      "leadCI": null,
-      "leadP25": null,
-      "leadP75": null,
-      "nClusterRuns": 200,
-      "nCalmRuns": 200,
-      "nAlertZoneDays": 0,
-      "nActiveAlertZoneDays": 0,
-      "nLeads": 0
-    },
-    {
-      "mode": "village",
-      "wearRate": 0.6,
-      "detector": "D2",
-      "detectorName": "Personal baseline",
-      "detectionRate": 0.88,
-      "detectionRateCI": [
-        0.83,
-        0.92
-      ],
-      "zoneDaySpecificity": 0.9999479166666667,
-      "specificityCI": [
-        0.99984375,
-        1
-      ],
-      "precision": 0.9962358845671268,
-      "precisionCI": [
-        0.9919354838709677,
-        0.9993823728315593
-      ],
-      "falseAlertsPerZonePer30d": 0.0015625,
-      "medianLeadDays": 2,
-      "leadCI": [
-        1,
-        2
-      ],
-      "leadP25": -1,
       "leadP75": 4,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1594,
-      "nActiveAlertZoneDays": 1588,
-      "nLeads": 198
+      "nAlertZoneDays": 1274,
+      "nActiveAlertZoneDays": 1265,
+      "nLeads": 195
+    },
+    {
+      "mode": "village",
+      "wearRate": 0.6,
+      "detector": "D1",
+      "detectorName": "Fixed threshold",
+      "detectionRate": 0,
+      "detectionRateCI": [
+        0,
+        0
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": null,
+      "precisionCI": null,
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
+      "nClusterRuns": 200,
+      "nCalmRuns": 200,
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
+    },
+    {
+      "mode": "village",
+      "wearRate": 0.6,
+      "detector": "D2",
+      "detectorName": "Personal baseline",
+      "detectionRate": 0.79,
+      "detectionRateCI": [
+        0.735,
+        0.845
+      ],
+      "zoneDaySpecificity": 0.9999739583333334,
+      "specificityCI": [
+        0.999921875,
+        1
+      ],
+      "precision": 0.9970958373668926,
+      "precisionCI": [
+        0.9935243644430739,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0.00078125,
+      "medianLeadDays": 1,
+      "leadCI": [
+        0,
+        1
+      ],
+      "leadP25": -2,
+      "leadP75": 3,
+      "nClusterRuns": 200,
+      "nCalmRuns": 200,
+      "nAlertZoneDays": 1033,
+      "nActiveAlertZoneDays": 1030,
+      "nLeads": 188
     },
     {
       "mode": "village",
       "wearRate": 0.6,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
-      "detectionRate": 0.715,
+      "detectionRate": 0.545,
       "detectionRateCI": [
-        0.65,
-        0.78
+        0.475,
+        0.6101249999999999
       ],
-      "zoneDaySpecificity": 0.9999739583333334,
+      "zoneDaySpecificity": 1,
       "specificityCI": [
-        0.999921875,
+        1,
         1
       ],
       "precision": 1,
@@ -389,33 +389,33 @@
         1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00078125,
-      "medianLeadDays": 1,
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": 0,
       "leadCI": [
         0,
-        2
+        1
       ],
       "leadP25": -1,
-      "leadP75": 3,
+      "leadP75": 2,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 674,
-      "nActiveAlertZoneDays": 674,
-      "nLeads": 160
+      "nAlertZoneDays": 377,
+      "nActiveAlertZoneDays": 377,
+      "nLeads": 135
     },
     {
       "mode": "village",
       "wearRate": 0.6,
       "detector": "D4",
       "detectorName": "Full engine",
-      "detectionRate": 0.715,
+      "detectionRate": 0.545,
       "detectionRateCI": [
-        0.65,
-        0.775
+        0.475,
+        0.61
       ],
-      "zoneDaySpecificity": 0.9999739583333334,
+      "zoneDaySpecificity": 1,
       "specificityCI": [
-        0.999921875,
+        1,
         1
       ],
       "precision": 1,
@@ -423,19 +423,19 @@
         1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00078125,
-      "medianLeadDays": 1,
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": 0,
       "leadCI": [
         0,
-        2
+        1
       ],
       "leadP25": -1,
-      "leadP75": 3,
+      "leadP75": 2,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 674,
-      "nActiveAlertZoneDays": 674,
-      "nLeads": 160
+      "nAlertZoneDays": 377,
+      "nActiveAlertZoneDays": 377,
+      "nLeads": 135
     },
     {
       "mode": "village",
@@ -470,102 +470,84 @@
       "wearRate": 0.4,
       "detector": "D2",
       "detectorName": "Personal baseline",
-      "detectionRate": 0.01,
+      "detectionRate": 0,
       "detectionRateCI": [
         0,
-        0.025
+        0
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -2.5,
-      "leadCI": [
-        -8,
-        1
-      ],
-      "leadP25": -4.25,
-      "leadP75": -1.25,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 4
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "village",
       "wearRate": 0.4,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
-      "detectionRate": 0.01,
+      "detectionRate": 0,
       "detectionRateCI": [
         0,
-        0.025
+        0
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -1,
-      "leadCI": [
-        -3,
-        1
-      ],
-      "leadP25": -2,
-      "leadP75": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2,
-      "nActiveAlertZoneDays": 2,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "village",
       "wearRate": 0.4,
       "detector": "D4",
       "detectorName": "Full engine",
-      "detectionRate": 0.01,
+      "detectionRate": 0,
       "detectionRateCI": [
         0,
-        0.025
+        0
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -1,
-      "leadCI": [
-        -3,
-        1
-      ],
-      "leadP25": -2,
-      "leadP75": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2,
-      "nActiveAlertZoneDays": 2,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "ward",
@@ -588,18 +570,18 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6.5,
+      "medianLeadDays": -7,
       "leadCI": [
-        -7.5,
-        -4
+        -8,
+        -3
       ],
       "leadP25": -7,
       "leadP75": -6,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 17,
-      "nActiveAlertZoneDays": 17,
-      "nLeads": 6
+      "nAlertZoneDays": 14,
+      "nActiveAlertZoneDays": 14,
+      "nLeads": 5
     },
     {
       "mode": "ward",
@@ -611,17 +593,17 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.96701171875,
+      "zoneDaySpecificity": 0.96935546875,
       "specificityCI": [
-        0.9648828125,
-        0.96916064453125
+        0.96728515625,
+        0.9716015625
       ],
-      "precision": 0.7275265214963708,
+      "precision": 0.7410168195718655,
       "precisionCI": [
-        0.7124266232195988,
-        0.7430022833528169
+        0.725766530184991,
+        0.7565407066983199
       ],
-      "falseAlertsPerZonePer30d": 0.9896484375000001,
+      "falseAlertsPerZonePer30d": 0.9193359375,
       "medianLeadDays": 5,
       "leadCI": [
         5,
@@ -631,8 +613,8 @@
       "leadP75": 7,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 5373,
-      "nActiveAlertZoneDays": 3909,
+      "nAlertZoneDays": 5232,
+      "nActiveAlertZoneDays": 3877,
       "nLeads": 200
     },
     {
@@ -650,23 +632,23 @@
         0.99984375,
         0.99998046875
       ],
-      "precision": 0.9976314542870678,
+      "precision": 0.9975751697381183,
       "precisionCI": [
-        0.9948525368529161,
-        0.9995294117647059
+        0.9947390439233477,
+        0.9995183160219643
       ],
       "falseAlertsPerZonePer30d": 0.00234375,
       "medianLeadDays": 2,
       "leadCI": [
-        1.9875000000000007,
+        1,
         2
       ],
       "leadP25": 0,
       "leadP75": 3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2111,
-      "nActiveAlertZoneDays": 2106,
+      "nAlertZoneDays": 2062,
+      "nActiveAlertZoneDays": 2057,
       "nLeads": 200
     },
     {
@@ -684,23 +666,23 @@
         0.99984375,
         0.99998095703125
       ],
-      "precision": 0.9976314542870678,
+      "precision": 0.9975751697381183,
       "precisionCI": [
-        0.9952355991772421,
-        0.9995298597781478
+        0.9951361275999507,
+        0.9995176247598493
       ],
       "falseAlertsPerZonePer30d": 0.00234375,
       "medianLeadDays": 2,
       "leadCI": [
-        1.9875000000000007,
+        1,
         2
       ],
       "leadP25": 0,
       "leadP75": 3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2111,
-      "nActiveAlertZoneDays": 2106,
+      "nAlertZoneDays": 2062,
+      "nActiveAlertZoneDays": 2057,
       "nLeads": 200
     },
     {
@@ -724,41 +706,41 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -4.5,
+      "medianLeadDays": -5,
       "leadCI": [
-        -8,
+        -9,
         -4
       ],
-      "leadP25": -6.5,
+      "leadP25": -5,
       "leadP75": -4,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 11,
-      "nActiveAlertZoneDays": 11,
-      "nLeads": 6
+      "nAlertZoneDays": 6,
+      "nActiveAlertZoneDays": 6,
+      "nLeads": 5
     },
     {
       "mode": "ward",
       "wearRate": 0.8,
       "detector": "D2",
       "detectorName": "Personal baseline",
-      "detectionRate": 1,
+      "detectionRate": 0.99,
       "detectionRateCI": [
-        1,
+        0.975,
         1
       ],
-      "zoneDaySpecificity": 0.977578125,
+      "zoneDaySpecificity": 0.9838671875,
       "specificityCI": [
-        0.97568359375,
-        0.9793359375
+        0.9823627929687501,
+        0.9852734375
       ],
-      "precision": 0.7960327727468737,
+      "precision": 0.8401433691756273,
       "precisionCI": [
-        0.7810568879708873,
-        0.8105573654172626
+        0.8269407724401612,
+        0.853898529814776
       ],
-      "falseAlertsPerZonePer30d": 0.6726562500000001,
-      "medianLeadDays": 5,
+      "falseAlertsPerZonePer30d": 0.48398437499999997,
+      "medianLeadDays": 4,
       "leadCI": [
         4,
         5
@@ -767,8 +749,8 @@
       "leadP75": 6,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 4638,
-      "nActiveAlertZoneDays": 3692,
+      "nAlertZoneDays": 4185,
+      "nActiveAlertZoneDays": 3516,
       "nLeads": 200
     },
     {
@@ -776,33 +758,33 @@
       "wearRate": 0.8,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
-      "detectionRate": 0.95,
+      "detectionRate": 0.925,
       "detectionRateCI": [
-        0.919875,
-        0.975
+        0.885,
+        0.96
       ],
-      "zoneDaySpecificity": 0.99978515625,
+      "zoneDaySpecificity": 0.9998828125,
       "specificityCI": [
-        0.9994921875,
-        0.9999609375
+        0.9996875,
+        1
       ],
-      "precision": 0.9975049900199601,
+      "precision": 0.9994453688297282,
       "precisionCI": [
-        0.9949646263765715,
-        0.9990311245542822
+        0.9983117138395936,
+        1
       ],
-      "falseAlertsPerZonePer30d": 0.0064453125,
+      "falseAlertsPerZonePer30d": 0.0035156249999999997,
       "medianLeadDays": 1,
       "leadCI": [
-        1,
+        0,
         2
       ],
       "leadP25": -1,
-      "leadP75": 3,
+      "leadP75": 2,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2004,
-      "nActiveAlertZoneDays": 1999,
+      "nAlertZoneDays": 1803,
+      "nActiveAlertZoneDays": 1802,
       "nLeads": 200
     },
     {
@@ -810,33 +792,33 @@
       "wearRate": 0.8,
       "detector": "D4",
       "detectorName": "Full engine",
-      "detectionRate": 0.95,
+      "detectionRate": 0.925,
       "detectionRateCI": [
-        0.92,
-        0.975
+        0.885,
+        0.96
       ],
-      "zoneDaySpecificity": 0.99978515625,
+      "zoneDaySpecificity": 0.9998828125,
       "specificityCI": [
-        0.99953125,
-        0.9999609375
+        0.99970703125,
+        1
       ],
-      "precision": 0.9975049900199601,
+      "precision": 0.9994453688297282,
       "precisionCI": [
-        0.9950713422030776,
-        0.999500262350103
+        0.9978129527233052,
+        1
       ],
-      "falseAlertsPerZonePer30d": 0.0064453125,
+      "falseAlertsPerZonePer30d": 0.0035156249999999997,
       "medianLeadDays": 1,
       "leadCI": [
-        1,
+        0,
         2
       ],
       "leadP25": -1,
-      "leadP75": 3,
+      "leadP75": 2,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2004,
-      "nActiveAlertZoneDays": 1999,
+      "nAlertZoneDays": 1803,
+      "nActiveAlertZoneDays": 1802,
       "nLeads": 200
     },
     {
@@ -854,57 +836,51 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6,
-      "leadCI": [
-        -6,
-        -3
-      ],
-      "leadP25": -6,
-      "leadP75": -4.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 3
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "ward",
       "wearRate": 0.6,
       "detector": "D2",
       "detectorName": "Personal baseline",
-      "detectionRate": 0.965,
+      "detectionRate": 0.92,
       "detectionRateCI": [
-        0.935,
-        0.99
+        0.88,
+        0.955
       ],
-      "zoneDaySpecificity": 0.99755859375,
+      "zoneDaySpecificity": 0.99908203125,
       "specificityCI": [
-        0.99685546875,
-        0.99818359375
+        0.998671875,
+        0.99943359375
       ],
-      "precision": 0.9560400285918513,
+      "precision": 0.9730593607305936,
       "precisionCI": [
-        0.9460025760806444,
-        0.9652339085039788
+        0.9632952573697358,
+        0.9809309031983207
       ],
-      "falseAlertsPerZonePer30d": 0.0732421875,
-      "medianLeadDays": 2,
+      "falseAlertsPerZonePer30d": 0.0275390625,
+      "medianLeadDays": 1,
       "leadCI": [
-        1,
+        0,
         2
       ],
-      "leadP25": 0,
-      "leadP75": 4,
+      "leadP25": -1,
+      "leadP75": 3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2798,
-      "nActiveAlertZoneDays": 2675,
+      "nAlertZoneDays": 2190,
+      "nActiveAlertZoneDays": 2131,
       "nLeads": 200
     },
     {
@@ -912,68 +888,68 @@
       "wearRate": 0.6,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
-      "detectionRate": 0.755,
+      "detectionRate": 0.635,
       "detectionRateCI": [
-        0.695,
-        0.81
+        0.565,
+        0.7
       ],
-      "zoneDaySpecificity": 0.999921875,
+      "zoneDaySpecificity": 0.99998046875,
       "specificityCI": [
-        0.99982421875,
+        0.99994140625,
         1
       ],
-      "precision": 0.9981515711645101,
+      "precision": 1,
       "precisionCI": [
-        0.9953226220381679,
+        1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00234375,
-      "medianLeadDays": -0.5,
+      "falseAlertsPerZonePer30d": 0.0005859375,
+      "medianLeadDays": -2,
       "leadCI": [
-        -1,
-        0
+        -2,
+        -1
       ],
-      "leadP25": -3,
-      "leadP75": 1,
+      "leadP25": -4,
+      "leadP75": 0,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1082,
-      "nActiveAlertZoneDays": 1080,
-      "nLeads": 194
+      "nAlertZoneDays": 649,
+      "nActiveAlertZoneDays": 649,
+      "nLeads": 179
     },
     {
       "mode": "ward",
       "wearRate": 0.6,
       "detector": "D4",
       "detectorName": "Full engine",
-      "detectionRate": 0.755,
+      "detectionRate": 0.635,
       "detectionRateCI": [
-        0.695,
-        0.81
+        0.565,
+        0.705
       ],
-      "zoneDaySpecificity": 0.999921875,
+      "zoneDaySpecificity": 0.99998046875,
       "specificityCI": [
-        0.9998046875,
+        0.99994140625,
         1
       ],
-      "precision": 0.9981515711645101,
+      "precision": 1,
       "precisionCI": [
-        0.9952378680479825,
+        1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00234375,
-      "medianLeadDays": -0.5,
+      "falseAlertsPerZonePer30d": 0.0005859375,
+      "medianLeadDays": -2,
       "leadCI": [
-        -1,
-        0
+        -2,
+        -1
       ],
-      "leadP25": -3,
-      "leadP75": 1,
+      "leadP25": -4,
+      "leadP75": 0,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1082,
-      "nActiveAlertZoneDays": 1080,
-      "nLeads": 194
+      "nAlertZoneDays": 649,
+      "nActiveAlertZoneDays": 649,
+      "nLeads": 179
     },
     {
       "mode": "ward",
@@ -1008,10 +984,10 @@
       "wearRate": 0.4,
       "detector": "D2",
       "detectorName": "Personal baseline",
-      "detectionRate": 0.005,
+      "detectionRate": 0,
       "detectionRateCI": [
         0,
-        0.02
+        0
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
@@ -1024,18 +1000,18 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -5,
+      "medianLeadDays": -6.5,
       "leadCI": [
-        -8,
+        -9,
         -4
       ],
-      "leadP25": -8,
-      "leadP75": -4,
+      "leadP25": -8.25,
+      "leadP75": -4.75,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 22,
-      "nActiveAlertZoneDays": 22,
-      "nLeads": 13
+      "nAlertZoneDays": 5,
+      "nActiveAlertZoneDays": 5,
+      "nLeads": 4
     },
     {
       "mode": "ward",
@@ -1052,24 +1028,18 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -7,
-      "leadCI": [
-        -10,
-        -4
-      ],
-      "leadP25": -8.5,
-      "leadP75": -5.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "ward",
@@ -1086,34 +1056,28 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -7,
-      "leadCI": [
-        -10,
-        -4
-      ],
-      "leadP25": -8.5,
-      "leadP75": -5.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "society",
       "wearRate": 1,
       "detector": "D1",
       "detectorName": "Fixed threshold",
-      "detectionRate": 0.01,
+      "detectionRate": 0.005,
       "detectionRateCI": [
         0,
-        0.025
+        0.015
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
@@ -1128,16 +1092,16 @@
       "falseAlertsPerZonePer30d": 0,
       "medianLeadDays": -6,
       "leadCI": [
-        -6,
+        -7,
         -4
       ],
-      "leadP25": -6.25,
-      "leadP75": -3.75,
+      "leadP25": -6.5,
+      "leadP75": -3.5,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 45,
-      "nActiveAlertZoneDays": 45,
-      "nLeads": 16
+      "nAlertZoneDays": 41,
+      "nActiveAlertZoneDays": 41,
+      "nLeads": 15
     },
     {
       "mode": "society",
@@ -1149,17 +1113,17 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.9249739583333333,
+      "zoneDaySpecificity": 0.9299999999999999,
       "specificityCI": [
-        0.9214055989583333,
-        0.9288040364583333
+        0.9266399739583333,
+        0.9336458333333333
       ],
-      "precision": 0.63202416918429,
+      "precision": 0.6457719162141194,
       "precisionCI": [
-        0.6178535493839958,
-        0.6469574341832512
+        0.6310741697805273,
+        0.6607441817272331
       ],
-      "falseAlertsPerZonePer30d": 2.25078125,
+      "falseAlertsPerZonePer30d": 2.1,
       "medianLeadDays": 6,
       "leadCI": [
         5,
@@ -1169,8 +1133,8 @@
       "leadP75": 7,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 6620,
-      "nActiveAlertZoneDays": 4184,
+      "nAlertZoneDays": 6445,
+      "nActiveAlertZoneDays": 4162,
       "nLeads": 200
     },
     {
@@ -1183,17 +1147,17 @@
         0.925,
         0.98
       ],
-      "zoneDaySpecificity": 0.9997916666666666,
+      "zoneDaySpecificity": 0.9998177083333334,
       "specificityCI": [
-        0.9995833333333334,
+        0.9996354166666667,
         0.9999479166666667
       ],
-      "precision": 0.9995893223819302,
+      "precision": 0.9995845450768591,
       "precisionCI": [
-        0.9987597924512586,
+        0.9987447304349046,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00625,
+      "falseAlertsPerZonePer30d": 0.0054687500000000005,
       "medianLeadDays": 1,
       "leadCI": [
         1,
@@ -1203,8 +1167,8 @@
       "leadP75": 3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2435,
-      "nActiveAlertZoneDays": 2434,
+      "nAlertZoneDays": 2407,
+      "nActiveAlertZoneDays": 2406,
       "nLeads": 200
     },
     {
@@ -1217,17 +1181,17 @@
         0.925,
         0.98
       ],
-      "zoneDaySpecificity": 0.9997916666666666,
+      "zoneDaySpecificity": 0.9998177083333334,
       "specificityCI": [
-        0.999609375,
+        0.9996354166666667,
         0.9999479166666667
       ],
-      "precision": 0.9995893223819302,
+      "precision": 0.9995845450768591,
       "precisionCI": [
-        0.9983825313384553,
+        0.9983683094005733,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00625,
+      "falseAlertsPerZonePer30d": 0.0054687500000000005,
       "medianLeadDays": 1,
       "leadCI": [
         1,
@@ -1237,8 +1201,8 @@
       "leadP75": 3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2435,
-      "nActiveAlertZoneDays": 2434,
+      "nAlertZoneDays": 2407,
+      "nActiveAlertZoneDays": 2406,
       "nLeads": 200
     },
     {
@@ -1264,16 +1228,16 @@
       "falseAlertsPerZonePer30d": 0,
       "medianLeadDays": -6,
       "leadCI": [
-        -7,
+        -8,
         -3
       ],
-      "leadP25": -8,
+      "leadP25": -8.5,
       "leadP75": -3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 36,
-      "nActiveAlertZoneDays": 36,
-      "nLeads": 19
+      "nAlertZoneDays": 28,
+      "nActiveAlertZoneDays": 28,
+      "nLeads": 14
     },
     {
       "mode": "society",
@@ -1285,28 +1249,28 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.9491927083333334,
+      "zoneDaySpecificity": 0.9620052083333334,
       "specificityCI": [
-        0.94591015625,
-        0.9524225260416667
+        0.9595305989583333,
+        0.9644537760416667
       ],
-      "precision": 0.7039174536551241,
+      "precision": 0.758357771260997,
       "precisionCI": [
-        0.6881670575283709,
-        0.7190995228604986
+        0.7435089990490394,
+        0.7731232724162717
       ],
-      "falseAlertsPerZonePer30d": 1.52421875,
+      "falseAlertsPerZonePer30d": 1.13984375,
       "medianLeadDays": 5,
       "leadCI": [
-        5,
+        4,
         5
       ],
-      "leadP25": 4,
-      "leadP75": 7,
+      "leadP25": 3,
+      "leadP75": 6,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 5718,
-      "nActiveAlertZoneDays": 4025,
+      "nAlertZoneDays": 5115,
+      "nActiveAlertZoneDays": 3879,
       "nLeads": 200
     },
     {
@@ -1314,135 +1278,135 @@
       "wearRate": 0.8,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
+      "detectionRate": 0.91,
+      "detectionRateCI": [
+        0.87,
+        0.945
+      ],
+      "zoneDaySpecificity": 0.9996875,
+      "specificityCI": [
+        0.999296875,
+        0.9999479166666667
+      ],
+      "precision": 0.9962103268593084,
+      "precisionCI": [
+        0.9926107806609606,
+        0.9990453688244259
+      ],
+      "falseAlertsPerZonePer30d": 0.009375,
+      "medianLeadDays": 0,
+      "leadCI": [
+        0,
+        1
+      ],
+      "leadP25": -1,
+      "leadP75": 2,
+      "nClusterRuns": 200,
+      "nCalmRuns": 200,
+      "nAlertZoneDays": 2111,
+      "nActiveAlertZoneDays": 2103,
+      "nLeads": 200
+    },
+    {
+      "mode": "society",
+      "wearRate": 0.8,
+      "detector": "D4",
+      "detectorName": "Full engine",
+      "detectionRate": 0.91,
+      "detectionRateCI": [
+        0.87,
+        0.95
+      ],
+      "zoneDaySpecificity": 0.9996875,
+      "specificityCI": [
+        0.9993229166666666,
+        0.9999479166666667
+      ],
+      "precision": 0.9962103268593084,
+      "precisionCI": [
+        0.9927147844155376,
+        0.9990522333480203
+      ],
+      "falseAlertsPerZonePer30d": 0.009375,
+      "medianLeadDays": 0,
+      "leadCI": [
+        0,
+        1
+      ],
+      "leadP25": -1,
+      "leadP75": 2,
+      "nClusterRuns": 200,
+      "nCalmRuns": 200,
+      "nAlertZoneDays": 2111,
+      "nActiveAlertZoneDays": 2103,
+      "nLeads": 200
+    },
+    {
+      "mode": "society",
+      "wearRate": 0.6,
+      "detector": "D1",
+      "detectorName": "Fixed threshold",
+      "detectionRate": 0,
+      "detectionRateCI": [
+        0,
+        0
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": 1,
+      "precisionCI": [
+        1,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": -5,
+      "leadCI": [
+        -5,
+        -5
+      ],
+      "leadP25": -5,
+      "leadP75": -5,
+      "nClusterRuns": 200,
+      "nCalmRuns": 200,
+      "nAlertZoneDays": 1,
+      "nActiveAlertZoneDays": 1,
+      "nLeads": 1
+    },
+    {
+      "mode": "society",
+      "wearRate": 0.6,
+      "detector": "D2",
+      "detectorName": "Personal baseline",
       "detectionRate": 0.945,
       "detectionRateCI": [
         0.91,
         0.975
       ],
-      "zoneDaySpecificity": 0.9995572916666666,
+      "zoneDaySpecificity": 0.9968489583333333,
       "specificityCI": [
-        0.9991666666666666,
-        0.99984375
+        0.99609375,
+        0.9976041666666666
       ],
-      "precision": 0.9947916666666666,
+      "precision": 0.9704469892870337,
       "precisionCI": [
-        0.99051222817717,
-        0.9982563398312925
+        0.962621612750901,
+        0.9778389703673402
       ],
-      "falseAlertsPerZonePer30d": 0.01328125,
+      "falseAlertsPerZonePer30d": 0.09453125,
       "medianLeadDays": 1,
       "leadCI": [
-        1,
-        1
-      ],
-      "leadP25": -1,
-      "leadP75": 2,
-      "nClusterRuns": 200,
-      "nCalmRuns": 200,
-      "nAlertZoneDays": 2304,
-      "nActiveAlertZoneDays": 2292,
-      "nLeads": 200
-    },
-    {
-      "mode": "society",
-      "wearRate": 0.8,
-      "detector": "D4",
-      "detectorName": "Full engine",
-      "detectionRate": 0.945,
-      "detectionRateCI": [
-        0.915,
-        0.975
-      ],
-      "zoneDaySpecificity": 0.9995572916666666,
-      "specificityCI": [
-        0.9991666666666666,
-        0.99984375
-      ],
-      "precision": 0.9947916666666666,
-      "precisionCI": [
-        0.9905456654673668,
-        0.9982495103364906
-      ],
-      "falseAlertsPerZonePer30d": 0.01328125,
-      "medianLeadDays": 1,
-      "leadCI": [
-        1,
-        1
-      ],
-      "leadP25": -1,
-      "leadP75": 2,
-      "nClusterRuns": 200,
-      "nCalmRuns": 200,
-      "nAlertZoneDays": 2304,
-      "nActiveAlertZoneDays": 2292,
-      "nLeads": 200
-    },
-    {
-      "mode": "society",
-      "wearRate": 0.6,
-      "detector": "D1",
-      "detectorName": "Fixed threshold",
-      "detectionRate": 0,
-      "detectionRateCI": [
         0,
-        0
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6,
-      "leadCI": [
-        -7,
-        -5
-      ],
-      "leadP25": -6.5,
-      "leadP75": -5.5,
-      "nClusterRuns": 200,
-      "nCalmRuns": 200,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 3
-    },
-    {
-      "mode": "society",
-      "wearRate": 0.6,
-      "detector": "D2",
-      "detectorName": "Personal baseline",
-      "detectionRate": 0.975,
-      "detectionRateCI": [
-        0.955,
-        0.995
-      ],
-      "zoneDaySpecificity": 0.9928125,
-      "specificityCI": [
-        0.9915104166666666,
-        0.9941666666666666
-      ],
-      "precision": 0.9375955949831752,
-      "precisionCI": [
-        0.9257472995543626,
-        0.94822848515564
-      ],
-      "falseAlertsPerZonePer30d": 0.215625,
-      "medianLeadDays": 2,
-      "leadCI": [
-        1,
         2
       ],
-      "leadP25": 0,
-      "leadP75": 4,
+      "leadP25": -1,
+      "leadP75": 3,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 3269,
-      "nActiveAlertZoneDays": 3065,
+      "nAlertZoneDays": 2707,
+      "nActiveAlertZoneDays": 2627,
       "nLeads": 200
     },
     {
@@ -1450,68 +1414,68 @@
       "wearRate": 0.6,
       "detector": "D3",
       "detectorName": "Baseline + binomial",
-      "detectionRate": 0.785,
+      "detectionRate": 0.655,
       "detectionRateCI": [
-        0.725,
-        0.84
+        0.59,
+        0.72
       ],
-      "zoneDaySpecificity": 0.9999479166666667,
+      "zoneDaySpecificity": 0.9999739583333334,
       "specificityCI": [
-        0.9998697916666667,
+        0.999921875,
         1
       ],
-      "precision": 0.9979933110367893,
+      "precision": 1,
       "precisionCI": [
-        0.995455698493004,
+        1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.0015625,
-      "medianLeadDays": -1,
+      "falseAlertsPerZonePer30d": 0.00078125,
+      "medianLeadDays": -2,
       "leadCI": [
-        -2,
-        -1
+        -3,
+        -2
       ],
-      "leadP25": -3,
+      "leadP25": -4,
       "leadP75": 0,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1495,
-      "nActiveAlertZoneDays": 1492,
-      "nLeads": 197
+      "nAlertZoneDays": 1046,
+      "nActiveAlertZoneDays": 1046,
+      "nLeads": 192
     },
     {
       "mode": "society",
       "wearRate": 0.6,
       "detector": "D4",
       "detectorName": "Full engine",
-      "detectionRate": 0.785,
+      "detectionRate": 0.655,
       "detectionRateCI": [
-        0.725,
-        0.835
+        0.59,
+        0.72
       ],
-      "zoneDaySpecificity": 0.9999479166666667,
+      "zoneDaySpecificity": 0.9999739583333334,
       "specificityCI": [
-        0.9998697916666667,
+        0.999921875,
         1
       ],
-      "precision": 0.9979933110367893,
+      "precision": 1,
       "precisionCI": [
-        0.9953939743813175,
+        1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.0015625,
-      "medianLeadDays": -1,
+      "falseAlertsPerZonePer30d": 0.00078125,
+      "medianLeadDays": -2,
       "leadCI": [
-        -2,
-        -1
+        -3,
+        -2
       ],
-      "leadP25": -3,
+      "leadP25": -4,
       "leadP75": 0,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 1495,
-      "nActiveAlertZoneDays": 1492,
-      "nLeads": 197
+      "nAlertZoneDays": 1046,
+      "nActiveAlertZoneDays": 1046,
+      "nLeads": 192
     },
     {
       "mode": "society",
@@ -1528,34 +1492,28 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -8,
-      "leadCI": [
-        -9,
-        -7
-      ],
-      "leadP25": -8.5,
-      "leadP75": -7.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 2,
-      "nActiveAlertZoneDays": 2,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "society",
       "wearRate": 0.4,
       "detector": "D2",
       "detectorName": "Personal baseline",
-      "detectionRate": 0.01,
+      "detectionRate": 0.005,
       "detectionRateCI": [
         0,
-        0.025
+        0.015
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
@@ -1568,18 +1526,18 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6,
+      "medianLeadDays": -7,
       "leadCI": [
-        -7,
-        -4.5
+        -9,
+        -3
       ],
-      "leadP25": -7,
+      "leadP25": -8,
       "leadP75": -4,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 43,
-      "nActiveAlertZoneDays": 43,
-      "nLeads": 20
+      "nAlertZoneDays": 9,
+      "nActiveAlertZoneDays": 9,
+      "nLeads": 7
     },
     {
       "mode": "society",
@@ -1596,24 +1554,18 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -7.5,
-      "leadCI": [
-        -9,
-        -5
-      ],
-      "leadP25": -8.25,
-      "leadP75": -6.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 6,
-      "nActiveAlertZoneDays": 6,
-      "nLeads": 4
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "society",
@@ -1630,24 +1582,18 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -7.5,
-      "leadCI": [
-        -9,
-        -5
-      ],
-      "leadP25": -8.25,
-      "leadP75": -6.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 200,
       "nCalmRuns": 200,
-      "nAlertZoneDays": 6,
-      "nActiveAlertZoneDays": 6,
-      "nLeads": 4
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     }
   ],
   "stress": [
@@ -1681,8 +1627,8 @@
       "leadP75": -4,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 2,
-      "nActiveAlertZoneDays": 2,
+      "nAlertZoneDays": 1,
+      "nActiveAlertZoneDays": 1,
       "nLeads": 1
     },
     {
@@ -1690,199 +1636,22 @@
       "stress": "heatwave",
       "wearRate": 0.8,
       "detector": "D4",
-      "detectionRate": 0.93,
+      "detectionRate": 0.92,
       "detectionRateCI": [
         0.87,
         0.97
       ],
-      "zoneDaySpecificity": 0.9790625,
+      "zoneDaySpecificity": 0.9788020833333333,
       "specificityCI": [
-        0.9766653645833333,
-        0.98135546875
+        0.9766132812499999,
+        0.9810429687500001
       ],
-      "precision": 0.6634512325830654,
+      "precision": 0.6483253588516746,
       "precisionCI": [
-        0.6258126034427552,
-        0.6998035479013739
+        0.6117372686205916,
+        0.6851025041081247
       ],
-      "falseAlertsPerZonePer30d": 0.628125,
-      "medianLeadDays": 4,
-      "leadCI": [
-        3,
-        5
-      ],
-      "leadP25": 2,
-      "leadP75": 5.75,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 933,
-      "nActiveAlertZoneDays": 619,
-      "nLeads": 98
-    },
-    {
-      "mode": "village",
-      "stress": "noisy",
-      "wearRate": 0.8,
-      "detector": "D1",
-      "detectionRate": 0,
-      "detectionRateCI": [
-        0,
-        0
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": null,
-      "precisionCI": null,
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": null,
-      "leadCI": null,
-      "leadP25": null,
-      "leadP75": null,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 0,
-      "nActiveAlertZoneDays": 0,
-      "nLeads": 0
-    },
-    {
-      "mode": "village",
-      "stress": "noisy",
-      "wearRate": 0.8,
-      "detector": "D4",
-      "detectionRate": 0.17,
-      "detectionRateCI": [
-        0.1,
-        0.24
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": 0.9833333333333333,
-      "precisionCI": [
-        0.94734492481203,
-        1
-      ],
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -1,
-      "leadCI": [
-        -3,
-        0
-      ],
-      "leadP25": -4.5,
-      "leadP75": 1,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 60,
-      "nActiveAlertZoneDays": 59,
-      "nLeads": 27
-    },
-    {
-      "mode": "village",
-      "stress": "isolated",
-      "wearRate": 0.8,
-      "detector": "D1",
-      "detectionRate": null,
-      "detectionRateCI": null,
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": null,
-      "precisionCI": null,
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": null,
-      "leadCI": null,
-      "leadP25": null,
-      "leadP75": null,
-      "nClusterRuns": 0,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 0,
-      "nActiveAlertZoneDays": 0,
-      "nLeads": 0
-    },
-    {
-      "mode": "village",
-      "stress": "isolated",
-      "wearRate": 0.8,
-      "detector": "D4",
-      "detectionRate": null,
-      "detectionRateCI": null,
-      "zoneDaySpecificity": 0.9997916666666666,
-      "specificityCI": [
-        0.9995833333333334,
-        0.9999479166666667
-      ],
-      "precision": null,
-      "precisionCI": null,
-      "falseAlertsPerZonePer30d": 0.00625,
-      "medianLeadDays": null,
-      "leadCI": null,
-      "leadP25": null,
-      "leadP75": null,
-      "nClusterRuns": 0,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 0,
-      "nActiveAlertZoneDays": 0,
-      "nLeads": 0
-    },
-    {
-      "mode": "village",
-      "stress": "fast",
-      "wearRate": 0.8,
-      "detector": "D1",
-      "detectionRate": 0,
-      "detectionRateCI": [
-        0,
-        0
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": null,
-      "leadCI": null,
-      "leadP25": null,
-      "leadP75": null,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 6,
-      "nActiveAlertZoneDays": 6,
-      "nLeads": 0
-    },
-    {
-      "mode": "village",
-      "stress": "fast",
-      "wearRate": 0.8,
-      "detector": "D4",
-      "detectionRate": 1,
-      "detectionRateCI": [
-        1,
-        1
-      ],
-      "zoneDaySpecificity": 0.9998958333333333,
-      "specificityCI": [
-        0.9997395833333333,
-        1
-      ],
-      "precision": 0.9989136338946225,
-      "precisionCI": [
-        0.9965662146325129,
-        1
-      ],
-      "falseAlertsPerZonePer30d": 0.003125,
+      "falseAlertsPerZonePer30d": 0.6359375,
       "medianLeadDays": 3,
       "leadCI": [
         3,
@@ -1892,9 +1661,186 @@
       "leadP75": 5,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 1841,
-      "nActiveAlertZoneDays": 1839,
-      "nLeads": 100
+      "nAlertZoneDays": 836,
+      "nActiveAlertZoneDays": 542,
+      "nLeads": 96
+    },
+    {
+      "mode": "village",
+      "stress": "noisy",
+      "wearRate": 0.8,
+      "detector": "D1",
+      "detectionRate": 0,
+      "detectionRateCI": [
+        0,
+        0
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": null,
+      "precisionCI": null,
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
+    },
+    {
+      "mode": "village",
+      "stress": "noisy",
+      "wearRate": 0.8,
+      "detector": "D4",
+      "detectionRate": 0.09,
+      "detectionRateCI": [
+        0.04,
+        0.15
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": 1,
+      "precisionCI": [
+        1,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": -2,
+      "leadCI": [
+        -4,
+        1
+      ],
+      "leadP25": -4,
+      "leadP75": 1,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 26,
+      "nActiveAlertZoneDays": 26,
+      "nLeads": 17
+    },
+    {
+      "mode": "village",
+      "stress": "isolated",
+      "wearRate": 0.8,
+      "detector": "D1",
+      "detectionRate": null,
+      "detectionRateCI": null,
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": null,
+      "precisionCI": null,
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
+      "nClusterRuns": 0,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
+    },
+    {
+      "mode": "village",
+      "stress": "isolated",
+      "wearRate": 0.8,
+      "detector": "D4",
+      "detectionRate": null,
+      "detectionRateCI": null,
+      "zoneDaySpecificity": 0.99984375,
+      "specificityCI": [
+        0.9996354166666667,
+        1
+      ],
+      "precision": null,
+      "precisionCI": null,
+      "falseAlertsPerZonePer30d": 0.0046875,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
+      "nClusterRuns": 0,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
+    },
+    {
+      "mode": "village",
+      "stress": "fast",
+      "wearRate": 0.8,
+      "detector": "D1",
+      "detectionRate": 0,
+      "detectionRateCI": [
+        0,
+        0
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": 1,
+      "precisionCI": [
+        1,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 4,
+      "nActiveAlertZoneDays": 4,
+      "nLeads": 0
+    },
+    {
+      "mode": "village",
+      "stress": "fast",
+      "wearRate": 0.8,
+      "detector": "D4",
+      "detectionRate": 0.99,
+      "detectionRateCI": [
+        0.97,
+        1
+      ],
+      "zoneDaySpecificity": 0.9998958333333333,
+      "specificityCI": [
+        0.9997395833333333,
+        1
+      ],
+      "precision": 0.9994505494505495,
+      "precisionCI": [
+        0.9982522917461589,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0.003125,
+      "medianLeadDays": 3,
+      "leadCI": [
+        3,
+        3
+      ],
+      "leadP25": 2,
+      "leadP75": 4,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 1820,
+      "nActiveAlertZoneDays": 1819,
+      "nLeads": 99
     },
     {
       "mode": "village",
@@ -1929,108 +1875,6 @@
       "stress": "low-participation",
       "wearRate": 0.4,
       "detector": "D4",
-      "detectionRate": 0.01,
-      "detectionRateCI": [
-        0,
-        0.03
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -3,
-      "leadCI": [
-        -3,
-        -3
-      ],
-      "leadP25": -3,
-      "leadP75": -3,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 1,
-      "nActiveAlertZoneDays": 1,
-      "nLeads": 1
-    },
-    {
-      "mode": "ward",
-      "stress": "heatwave",
-      "wearRate": 0.8,
-      "detector": "D1",
-      "detectionRate": 0.01,
-      "detectionRateCI": [
-        0,
-        0.03
-      ],
-      "zoneDaySpecificity": 1,
-      "specificityCI": [
-        1,
-        1
-      ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
-      "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6,
-      "leadCI": [
-        -7,
-        -4
-      ],
-      "leadP25": -6.5,
-      "leadP75": -5,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 6,
-      "nActiveAlertZoneDays": 6,
-      "nLeads": 3
-    },
-    {
-      "mode": "ward",
-      "stress": "heatwave",
-      "wearRate": 0.8,
-      "detector": "D4",
-      "detectionRate": 0.92,
-      "detectionRateCI": [
-        0.86,
-        0.97
-      ],
-      "zoneDaySpecificity": 0.986171875,
-      "specificityCI": [
-        0.984453125,
-        0.9880087890625
-      ],
-      "precision": 0.720168954593453,
-      "precisionCI": [
-        0.6886229448423317,
-        0.7507908572693563
-      ],
-      "falseAlertsPerZonePer30d": 0.41484375,
-      "medianLeadDays": 1,
-      "leadCI": [
-        1,
-        2.5
-      ],
-      "leadP25": 0,
-      "leadP75": 3,
-      "nClusterRuns": 100,
-      "nCalmRuns": 100,
-      "nAlertZoneDays": 947,
-      "nActiveAlertZoneDays": 682,
-      "nLeads": 98
-    },
-    {
-      "mode": "ward",
-      "stress": "noisy",
-      "wearRate": 0.8,
-      "detector": "D1",
       "detectionRate": 0,
       "detectionRateCI": [
         0,
@@ -2041,34 +1885,28 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6,
-      "leadCI": [
-        -6,
-        -6
-      ],
-      "leadP25": -6,
-      "leadP75": -6,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 1,
-      "nActiveAlertZoneDays": 1,
-      "nLeads": 1
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "ward",
-      "stress": "noisy",
+      "stress": "heatwave",
       "wearRate": 0.8,
-      "detector": "D4",
-      "detectionRate": 0.22,
+      "detector": "D1",
+      "detectionRate": 0.01,
       "detectionRateCI": [
-        0.14,
-        0.3
+        0,
+        0.03
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
@@ -2083,16 +1921,112 @@
       "falseAlertsPerZonePer30d": 0,
       "medianLeadDays": -4,
       "leadCI": [
-        -5,
+        -4,
+        -4
+      ],
+      "leadP25": -4,
+      "leadP75": -4,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 1,
+      "nActiveAlertZoneDays": 1,
+      "nLeads": 1
+    },
+    {
+      "mode": "ward",
+      "stress": "heatwave",
+      "wearRate": 0.8,
+      "detector": "D4",
+      "detectionRate": 0.92,
+      "detectionRateCI": [
+        0.86,
+        0.97
+      ],
+      "zoneDaySpecificity": 0.98359375,
+      "specificityCI": [
+        0.9817578125,
+        0.985587890625
+      ],
+      "precision": 0.6793478260869565,
+      "precisionCI": [
+        0.6453211054287963,
+        0.7149511125417454
+      ],
+      "falseAlertsPerZonePer30d": 0.4921875,
+      "medianLeadDays": 1,
+      "leadCI": [
+        0,
+        2
+      ],
+      "leadP25": -1,
+      "leadP75": 3,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 920,
+      "nActiveAlertZoneDays": 625,
+      "nLeads": 99
+    },
+    {
+      "mode": "ward",
+      "stress": "noisy",
+      "wearRate": 0.8,
+      "detector": "D1",
+      "detectionRate": 0,
+      "detectionRateCI": [
+        0,
+        0
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": null,
+      "precisionCI": null,
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
+      "nClusterRuns": 100,
+      "nCalmRuns": 100,
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
+    },
+    {
+      "mode": "ward",
+      "stress": "noisy",
+      "wearRate": 0.8,
+      "detector": "D4",
+      "detectionRate": 0.09,
+      "detectionRateCI": [
+        0.04,
+        0.15
+      ],
+      "zoneDaySpecificity": 1,
+      "specificityCI": [
+        1,
+        1
+      ],
+      "precision": 1,
+      "precisionCI": [
+        1,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0,
+      "medianLeadDays": -5,
+      "leadCI": [
+        -7,
         -2
       ],
-      "leadP25": -6,
+      "leadP25": -7,
       "leadP75": -2,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 109,
-      "nActiveAlertZoneDays": 109,
-      "nLeads": 45
+      "nAlertZoneDays": 37,
+      "nActiveAlertZoneDays": 37,
+      "nLeads": 25
     },
     {
       "mode": "ward",
@@ -2126,14 +2060,14 @@
       "detector": "D4",
       "detectionRate": null,
       "detectionRateCI": null,
-      "zoneDaySpecificity": 0.999296875,
+      "zoneDaySpecificity": 0.9996484375,
       "specificityCI": [
-        0.9988671875,
-        0.9996875
+        0.9994140625,
+        0.99984375
       ],
       "precision": null,
       "precisionCI": null,
-      "falseAlertsPerZonePer30d": 0.021093749999999998,
+      "falseAlertsPerZonePer30d": 0.010546874999999999,
       "medianLeadDays": null,
       "leadCI": null,
       "leadP25": null,
@@ -2174,8 +2108,8 @@
       "leadP75": -3.75,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 127,
-      "nActiveAlertZoneDays": 127,
+      "nAlertZoneDays": 88,
+      "nActiveAlertZoneDays": 88,
       "nLeads": 2
     },
     {
@@ -2188,9 +2122,9 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.99984375,
+      "zoneDaySpecificity": 0.999921875,
       "specificityCI": [
-        0.9996484375,
+        0.9998046875,
         1
       ],
       "precision": 1,
@@ -2198,18 +2132,18 @@
         1,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.0046875,
+      "falseAlertsPerZonePer30d": 0.00234375,
       "medianLeadDays": 2,
       "leadCI": [
         2,
-        3
+        2
       ],
       "leadP25": 1,
       "leadP75": 3,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 2496,
-      "nActiveAlertZoneDays": 2496,
+      "nAlertZoneDays": 2579,
+      "nActiveAlertZoneDays": 2579,
       "nLeads": 100
     },
     {
@@ -2255,24 +2189,18 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -7,
-      "leadCI": [
-        -10,
-        -4
-      ],
-      "leadP25": -8.5,
-      "leadP75": -5.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "society",
@@ -2295,51 +2223,51 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -6,
+      "medianLeadDays": -5,
       "leadCI": [
-        -8,
-        -5
+        -6,
+        -4
       ],
-      "leadP25": -7.5,
-      "leadP75": -4.5,
+      "leadP25": -6,
+      "leadP75": -4,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 37,
-      "nActiveAlertZoneDays": 37,
-      "nLeads": 15
+      "nAlertZoneDays": 29,
+      "nActiveAlertZoneDays": 29,
+      "nLeads": 11
     },
     {
       "mode": "society",
       "stress": "heatwave",
       "wearRate": 0.8,
       "detector": "D4",
-      "detectionRate": 0.93,
+      "detectionRate": 0.89,
       "detectionRateCI": [
-        0.88,
-        0.97
+        0.83,
+        0.95
       ],
-      "zoneDaySpecificity": 0.9901041666666667,
+      "zoneDaySpecificity": 0.9896354166666667,
       "specificityCI": [
-        0.9883854166666667,
-        0.9917708333333334
+        0.9878125,
+        0.9915104166666666
       ],
-      "precision": 0.8416945373467113,
+      "precision": 0.8493150684931506,
       "precisionCI": [
-        0.8184757060572277,
-        0.8652325952757306
+        0.8199476811449968,
+        0.8759697674418605
       ],
-      "falseAlertsPerZonePer30d": 0.296875,
+      "falseAlertsPerZonePer30d": 0.3109375,
       "medianLeadDays": 1,
       "leadCI": [
-        1,
-        2
+        0,
+        1
       ],
-      "leadP25": 0,
-      "leadP75": 3,
+      "leadP25": -0.25,
+      "leadP75": 2,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 897,
-      "nActiveAlertZoneDays": 755,
+      "nAlertZoneDays": 803,
+      "nActiveAlertZoneDays": 682,
       "nLeads": 100
     },
     {
@@ -2357,34 +2285,28 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -5,
-      "leadCI": [
-        -8,
-        -2
-      ],
-      "leadP25": -6.5,
-      "leadP75": -3.5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 4,
-      "nActiveAlertZoneDays": 4,
-      "nLeads": 2
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "society",
       "stress": "noisy",
       "wearRate": 0.8,
       "detector": "D4",
-      "detectionRate": 0.19,
+      "detectionRate": 0.04,
       "detectionRateCI": [
-        0.11975000000000001,
-        0.27
+        0.01,
+        0.08
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
@@ -2397,18 +2319,18 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -5,
+      "medianLeadDays": -6,
       "leadCI": [
-        -6,
-        -4
+        -8,
+        -5
       ],
-      "leadP25": -7,
-      "leadP75": -2,
+      "leadP25": -8.25,
+      "leadP75": -4.75,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 158,
-      "nActiveAlertZoneDays": 158,
-      "nLeads": 59
+      "nAlertZoneDays": 52,
+      "nActiveAlertZoneDays": 52,
+      "nLeads": 32
     },
     {
       "mode": "society",
@@ -2442,14 +2364,14 @@
       "detector": "D4",
       "detectionRate": null,
       "detectionRateCI": null,
-      "zoneDaySpecificity": 0.9988541666666667,
+      "zoneDaySpecificity": 0.9992708333333333,
       "specificityCI": [
-        0.9981770833333333,
-        0.9994791666666667
+        0.9988020833333333,
+        0.9996875
       ],
       "precision": null,
       "precisionCI": null,
-      "falseAlertsPerZonePer30d": 0.034375,
+      "falseAlertsPerZonePer30d": 0.021875000000000002,
       "medianLeadDays": null,
       "leadCI": null,
       "leadP25": null,
@@ -2465,10 +2387,10 @@
       "stress": "fast",
       "wearRate": 0.8,
       "detector": "D1",
-      "detectionRate": 0.07,
+      "detectionRate": 0.04,
       "detectionRateCI": [
-        0.02,
-        0.12
+        0.01,
+        0.08
       ],
       "zoneDaySpecificity": 1,
       "specificityCI": [
@@ -2481,18 +2403,18 @@
         1
       ],
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -4,
+      "medianLeadDays": -3.5,
       "leadCI": [
-        -5,
-        -2
+        -6,
+        -1
       ],
-      "leadP25": -5,
-      "leadP75": -2,
+      "leadP25": -6,
+      "leadP75": -1.25,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 221,
-      "nActiveAlertZoneDays": 221,
-      "nLeads": 13
+      "nAlertZoneDays": 153,
+      "nActiveAlertZoneDays": 153,
+      "nLeads": 10
     },
     {
       "mode": "society",
@@ -2504,28 +2426,28 @@
         1,
         1
       ],
-      "zoneDaySpecificity": 0.9997916666666666,
+      "zoneDaySpecificity": 0.9998958333333333,
       "specificityCI": [
-        0.99958203125,
-        0.9999479166666667
-      ],
-      "precision": 0.9982057416267942,
-      "precisionCI": [
-        0.9952095090824941,
+        0.9997395833333333,
         1
       ],
-      "falseAlertsPerZonePer30d": 0.00625,
+      "precision": 0.9981992797118847,
+      "precisionCI": [
+        0.9952093653125662,
+        1
+      ],
+      "falseAlertsPerZonePer30d": 0.003125,
       "medianLeadDays": 2,
       "leadCI": [
         1,
         2
       ],
-      "leadP25": 1,
+      "leadP25": 0,
       "leadP75": 3,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 1672,
-      "nActiveAlertZoneDays": 1669,
+      "nAlertZoneDays": 1666,
+      "nActiveAlertZoneDays": 1663,
       "nLeads": 100
     },
     {
@@ -2543,24 +2465,18 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -9,
-      "leadCI": [
-        -9,
-        -9
-      ],
-      "leadP25": -9,
-      "leadP75": -9,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 1,
-      "nActiveAlertZoneDays": 1,
-      "nLeads": 1
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     },
     {
       "mode": "society",
@@ -2577,24 +2493,18 @@
         1,
         1
       ],
-      "precision": 1,
-      "precisionCI": [
-        1,
-        1
-      ],
+      "precision": null,
+      "precisionCI": null,
       "falseAlertsPerZonePer30d": 0,
-      "medianLeadDays": -5,
-      "leadCI": [
-        -5,
-        -5
-      ],
-      "leadP25": -5,
-      "leadP75": -5,
+      "medianLeadDays": null,
+      "leadCI": null,
+      "leadP25": null,
+      "leadP75": null,
       "nClusterRuns": 100,
       "nCalmRuns": 100,
-      "nAlertZoneDays": 1,
-      "nActiveAlertZoneDays": 1,
-      "nLeads": 1
+      "nAlertZoneDays": 0,
+      "nActiveAlertZoneDays": 0,
+      "nLeads": 0
     }
   ],
   "noiseSweep": [
@@ -2602,42 +2512,42 @@
       "noiseLevel": 0,
       "personFlagPrecision": 0.792428689696696,
       "flaggedPersonDays": 13287,
-      "detectionRate": 0.98,
+      "detectionRate": 0.97,
       "falseAlertsPerZonePer30d": 0.0015625
     },
     {
       "noiseLevel": 0.2,
       "personFlagPrecision": 0.7026885016201069,
       "flaggedPersonDays": 11419,
-      "detectionRate": 0.97,
+      "detectionRate": 0.96,
       "falseAlertsPerZonePer30d": 0.003125
     },
     {
       "noiseLevel": 0.4,
       "personFlagPrecision": 0.6554119941491955,
       "flaggedPersonDays": 8204,
-      "detectionRate": 0.88,
+      "detectionRate": 0.77,
       "falseAlertsPerZonePer30d": 0.003125
     },
     {
       "noiseLevel": 0.6,
       "personFlagPrecision": 0.6188570157883033,
       "flaggedPersonDays": 4497,
-      "detectionRate": 0.55,
+      "detectionRate": 0.39,
       "falseAlertsPerZonePer30d": 0
     },
     {
       "noiseLevel": 0.8,
       "personFlagPrecision": 0.604,
       "flaggedPersonDays": 2000,
-      "detectionRate": 0.17,
+      "detectionRate": 0.09,
       "falseAlertsPerZonePer30d": 0
     },
     {
       "noiseLevel": 1,
       "personFlagPrecision": 0.5895424836601307,
       "flaggedPersonDays": 765,
-      "detectionRate": 0.01,
+      "detectionRate": 0,
       "falseAlertsPerZonePer30d": 0
     }
   ],

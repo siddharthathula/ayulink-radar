@@ -224,7 +224,7 @@ export default function ImpactPage() {
               ))}
             </div>
             <p className="mt-4 text-[13.5px] text-text-2">
-              Below roughly 60% daily wear the community signal fades. So the pilot measures wear first, and
+              The community signal needs about 80% daily wear; at 60% only about half of clusters are caught. So the pilot measures wear first, and
               ASHA home visits double as a nudge to wear and charge the band. These are simulation results,
               not field results.
             </p>

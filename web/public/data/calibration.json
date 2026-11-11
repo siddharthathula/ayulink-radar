@@ -1,0 +1,229 @@
+{
+  "generatedAt": "2026-11-11",
+  "question": "Under no outbreak, how often does the cluster test fire, compared with what it promises?",
+  "data": "Simulated calm runs, held-out seeds 101-300, region-wide guard OFF (raw test).",
+  "reading": [
+    "pValueCalibration: observed share of tests with p <= t. Honest p-values give observed <= nominal.",
+    "perTest: share of zone-days crossing the watch / alert threshold vs the Bonferroni-corrected alpha.",
+    "perRun: share of whole 32-day calm runs with at least one alert. Bonferroni covers zones, not days."
+  ],
+  "results": {
+    "village@0.8": {
+      "mode": "village",
+      "wear": 0.8,
+      "zones": 6,
+      "tests": 38400,
+      "pValueCalibration": [
+        {
+          "nominal": 0.001,
+          "observed": 0.0003
+        },
+        {
+          "nominal": 0.01,
+          "observed": 0.0028
+        },
+        {
+          "nominal": 0.05,
+          "observed": 0.0155
+        },
+        {
+          "nominal": 0.1,
+          "observed": 0.05
+        }
+      ],
+      "perTest": {
+        "watchNominal": 0.0017,
+        "watchObserved": 0.0009,
+        "alertNominal": 0.0002,
+        "alertObserved": 0.0001
+      },
+      "perRun": {
+        "runs": 200,
+        "shareWithAnyAlert": 0.025,
+        "shareWithAnyWatch": 0.125
+      },
+      "alertsPerZonePer30Days": 0.0039
+    },
+    "ward@0.8": {
+      "mode": "ward",
+      "wear": 0.8,
+      "zones": 8,
+      "tests": 51200,
+      "pValueCalibration": [
+        {
+          "nominal": 0.001,
+          "observed": 0.0006
+        },
+        {
+          "nominal": 0.01,
+          "observed": 0.0043
+        },
+        {
+          "nominal": 0.05,
+          "observed": 0.0201
+        },
+        {
+          "nominal": 0.1,
+          "observed": 0.0603
+        }
+      ],
+      "perTest": {
+        "watchNominal": 0.0013,
+        "watchObserved": 0.0007,
+        "alertNominal": 0.0001,
+        "alertObserved": 0.0001
+      },
+      "perRun": {
+        "runs": 200,
+        "shareWithAnyAlert": 0.015,
+        "shareWithAnyWatch": 0.105
+      },
+      "alertsPerZonePer30Days": 0.0035
+    },
+    "society@0.8": {
+      "mode": "society",
+      "wear": 0.8,
+      "zones": 6,
+      "tests": 38400,
+      "pValueCalibration": [
+        {
+          "nominal": 0.001,
+          "observed": 0.0008
+        },
+        {
+          "nominal": 0.01,
+          "observed": 0.0072
+        },
+        {
+          "nominal": 0.05,
+          "observed": 0.0328
+        },
+        {
+          "nominal": 0.1,
+          "observed": 0.0431
+        }
+      ],
+      "perTest": {
+        "watchNominal": 0.0017,
+        "watchObserved": 0.0015,
+        "alertNominal": 0.0002,
+        "alertObserved": 0.0003
+      },
+      "perRun": {
+        "runs": 200,
+        "shareWithAnyAlert": 0.03,
+        "shareWithAnyWatch": 0.165
+      },
+      "alertsPerZonePer30Days": 0.0094
+    },
+    "village@0.6": {
+      "mode": "village",
+      "wear": 0.6,
+      "zones": 6,
+      "tests": 38264,
+      "pValueCalibration": [
+        {
+          "nominal": 0.001,
+          "observed": 0
+        },
+        {
+          "nominal": 0.01,
+          "observed": 0.0014
+        },
+        {
+          "nominal": 0.05,
+          "observed": 0.0121
+        },
+        {
+          "nominal": 0.1,
+          "observed": 0.023
+        }
+      ],
+      "perTest": {
+        "watchNominal": 0.0017,
+        "watchObserved": 0.0001,
+        "alertNominal": 0.0002,
+        "alertObserved": 0
+      },
+      "perRun": {
+        "runs": 200,
+        "shareWithAnyAlert": 0,
+        "shareWithAnyWatch": 0.01
+      },
+      "alertsPerZonePer30Days": 0
+    },
+    "ward@0.6": {
+      "mode": "ward",
+      "wear": 0.6,
+      "zones": 8,
+      "tests": 51200,
+      "pValueCalibration": [
+        {
+          "nominal": 0.001,
+          "observed": 0.0001
+        },
+        {
+          "nominal": 0.01,
+          "observed": 0.0009
+        },
+        {
+          "nominal": 0.05,
+          "observed": 0.0092
+        },
+        {
+          "nominal": 0.1,
+          "observed": 0.0151
+        }
+      ],
+      "perTest": {
+        "watchNominal": 0.0013,
+        "watchObserved": 0.0001,
+        "alertNominal": 0.0001,
+        "alertObserved": 0
+      },
+      "perRun": {
+        "runs": 200,
+        "shareWithAnyAlert": 0.005,
+        "shareWithAnyWatch": 0.03
+      },
+      "alertsPerZonePer30Days": 0.0006
+    },
+    "society@0.6": {
+      "mode": "society",
+      "wear": 0.6,
+      "zones": 6,
+      "tests": 38400,
+      "pValueCalibration": [
+        {
+          "nominal": 0.001,
+          "observed": 0.0002
+        },
+        {
+          "nominal": 0.01,
+          "observed": 0.0016
+        },
+        {
+          "nominal": 0.05,
+          "observed": 0.0098
+        },
+        {
+          "nominal": 0.1,
+          "observed": 0.019
+        }
+      ],
+      "perTest": {
+        "watchNominal": 0.0017,
+        "watchObserved": 0.0003,
+        "alertNominal": 0.0002,
+        "alertObserved": 0
+      },
+      "perRun": {
+        "runs": 200,
+        "shareWithAnyAlert": 0.005,
+        "shareWithAnyWatch": 0.055
+      },
+      "alertsPerZonePer30Days": 0.0008
+    }
+  },
+  "runtimeSeconds": 43
+}

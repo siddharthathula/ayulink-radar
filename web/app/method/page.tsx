@@ -8,6 +8,16 @@ import {
   type StressRow,
 } from "@/lib/results";
 import { NoiseChart } from "@/components/method/NoiseChart";
+import calibrationJson from "@/public/data/calibration.json";
+
+interface CalibrationRow {
+  mode: string;
+  wear: number;
+  pValueCalibration: Array<{ nominal: number; observed: number }>;
+  perTest: { watchNominal: number; watchObserved: number; alertNominal: number; alertObserved: number };
+  perRun: { runs: number; shareWithAnyAlert: number; shareWithAnyWatch: number };
+}
+const calibration = calibrationJson as unknown as { results: Record<string, CalibrationRow> };
 
 export const metadata: Metadata = {
   title: "Method",
@@ -20,6 +30,7 @@ const SECTIONS = [
   { id: "evaluation", label: "Evaluation design" },
   { id: "results", label: "Radar results" },
   { id: "stress", label: "Stress tests" },
+  { id: "calibration", label: "Calibration" },
   { id: "noise", label: "Noise sweep" },
   { id: "rhythm", label: "Rhythm model" },
   { id: "assumptions", label: "Simulation assumptions" },
@@ -345,6 +356,59 @@ export default function MethodPage() {
                 <StressTable rows={evalData.stress} detector="D1" />
               </div>
             </details>
+          </section>
+
+          <section id="calibration" className="mt-10 scroll-mt-24">
+            <h2 className="text-xl">Calibration: does the test keep its promise?</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Calm runs only (no outbreak), held-out seeds 101–300, region-wide guard off, so this is the raw
+              test. Honest p-values mean the observed share of tests with p ≤ t stays at or below t.
+              Bonferroni divides alpha by the number of zones; it does not correct for testing every day, so
+              we also report how often a whole calm 32-day run raises at least one alert.
+            </p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[620px] text-left text-[13px]">
+                <thead className="text-[11px] uppercase tracking-wide text-muted">
+                  <tr>
+                    <th className="py-2 pr-3 font-semibold">Setting · wear</th>
+                    <th className="py-2 pr-3 font-semibold">P(p ≤ 0.01)</th>
+                    <th className="py-2 pr-3 font-semibold">P(p ≤ 0.05)</th>
+                    <th className="py-2 pr-3 font-semibold">Alert rate per test (nominal)</th>
+                    <th className="py-2 pr-3 font-semibold">Calm runs with ≥1 alert</th>
+                    <th className="py-2 font-semibold">… with ≥1 watch</th>
+                  </tr>
+                </thead>
+                <tbody className="mono">
+                  {Object.values(calibration.results).map((r) => (
+                    <tr key={`${r.mode}-${r.wear}`} className="border-t border-border">
+                      <td className="py-2 pr-3 font-sans">
+                        {r.mode === "ward" ? "city" : r.mode} · {Math.round(r.wear * 100)}%
+                      </td>
+                      <td className="py-2 pr-3">{r.pValueCalibration[1].observed}</td>
+                      <td className="py-2 pr-3">{r.pValueCalibration[2].observed}</td>
+                      <td className="py-2 pr-3">
+                        {r.perTest.alertObserved} ({r.perTest.alertNominal})
+                      </td>
+                      <td className="py-2 pr-3">{(r.perRun.shareWithAnyAlert * 100).toFixed(1)}%</td>
+                      <td className="py-2">{(r.perRun.shareWithAnyWatch * 100).toFixed(1)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Reading it: p-values are conservative almost everywhere. One exception: the society setting at
+              80% wear fires alerts slightly above its per-test promise, because flags from one person persist
+              for days and neighbours are not fully independent. Across a whole calm month, a small share of
+              runs still sees one alert and more see a watch — that is the real false-alarm load an operator
+              feels. Regenerate with <span className="mono">npx tsx scripts/calibrate.ts</span>.
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Fixed on 11 Nov 2026: the count of flagged people (k) could include people who were not in the
+              denominator (n) because they had fewer than 2 valid days in the window. That made p-values too
+              small on about 12% of zone-days. k is now restricted to eligible people; every number on this
+              site was regenerated after the fix.
+            </p>
           </section>
 
           <section id="noise" className="mt-10 scroll-mt-24">

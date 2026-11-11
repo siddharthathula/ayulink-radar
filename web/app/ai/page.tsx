@@ -21,7 +21,7 @@ import { rhythmModelData } from "@/lib/results";
 export const metadata: Metadata = {
   title: "The AI inside AyuLink",
   description:
-    "Eight AI pieces from band to console: personal baselines, cluster detection, a trained 3-day outbreak forecaster, rhythm screening, a grounded operator assistant and multilingual notes — with real test numbers and honest limits.",
+    "Eight AI pieces from band to console: personal baselines, cluster detection, a trained 3-day escalation forecaster, rhythm screening, a grounded operator assistant and multilingual notes — with real test numbers and honest limits.",
 };
 
 const ev = FORECAST_EVAL;
@@ -66,7 +66,7 @@ const SYSTEMS = [
   },
   {
     Icon: TrendingUp,
-    name: "3-day outbreak forecaster",
+    name: "3-day escalation forecaster",
     kind: "Trained machine-learning model",
     where: "Console + API",
     plain:
@@ -275,7 +275,7 @@ export default function AiPage() {
           <div>
             <p className="eyebrow text-brand">Model card</p>
             <h2 className="mt-2 text-2xl sm:text-3xl">
-              3-day outbreak forecaster
+              3-day escalation forecaster
             </h2>
             <dl className="mt-4 space-y-3 text-[14px]">
               <div>

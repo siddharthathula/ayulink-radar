@@ -219,7 +219,7 @@ const RISKS = [
   },
   {
     risk: "People stop wearing the band",
-    plan: "Comfortable strap, long battery, and the detector already tolerates 60% wear. We measure it in the pilot.",
+    plan: "Comfortable strap and long battery. The detector needs about 80% daily wear (at 60% it catches roughly half of clusters), so wear is the first thing the pilot measures.",
   },
   {
     risk: "Privacy",
