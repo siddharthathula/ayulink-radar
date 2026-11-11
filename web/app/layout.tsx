@@ -18,7 +18,9 @@ export const metadata: Metadata = {
     "Personal-baseline resting-heart-rate drift flags, community cluster alerts and irregular-rhythm screening. Screening prototype, not a medical device.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
