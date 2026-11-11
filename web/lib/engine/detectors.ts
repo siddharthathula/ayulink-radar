@@ -1,4 +1,4 @@
-import { detectClusters, windowStats } from "./cluster";
+import { detectClusters, zoneWindowStats } from "./cluster";
 import { CLUSTER_FIRST_DAY } from "./presets";
 import type { DayObs, DriftPoint, Person, SimResult, Zone, ZoneDay } from "./types";
 
@@ -74,6 +74,13 @@ function simpleZoneDays(
   }
 
   const rows: ZoneDay[] = [];
+  const statsByZone = new Map<string, { n: number[]; k: number[] }>();
+  for (const zone of zones) {
+    statsByZone.set(
+      zone.id,
+      zoneWindowStats(peopleByZone.get(zone.id) ?? [], { flags, valid }, dayCount),
+    );
+  }
   for (let day = 0; day < dayCount; day++) {
     for (const zone of zones) {
       if (day < CLUSTER_FIRST_DAY) {
@@ -89,7 +96,9 @@ function simpleZoneDays(
         });
         continue;
       }
-      const { n, k } = windowStats(peopleByZone.get(zone.id) ?? [], { flags, valid }, day);
+      const stats = statsByZone.get(zone.id);
+      const n = stats?.n[day] ?? 0;
+      const k = stats?.k[day] ?? 0;
       const alert = n >= 10 && k >= 4;
       rows.push({
         zoneId: zone.id,
@@ -123,8 +132,11 @@ export function detectorZoneDays(detector: DetectorId, result: SimResult): ZoneD
       flagsFromDrift(result.people, result.drift),
     );
   }
+  if (detector === "D4") {
+    return result.zoneDays;
+  }
   return detectClusters(result.people, result.zones, result.obs, result.drift, {
-    guard: detector === "D4",
+    guard: false,
   });
 }
 
