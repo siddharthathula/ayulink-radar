@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BAND_BASE_INR, BAND_GPS_INR, GATEWAY_INR, inr } from "@/lib/hardware/bom";
 import {
   ArrowRight,
   Briefcase,
@@ -227,7 +228,7 @@ const RISKS = [
   },
   {
     risk: "False alarms in heat waves",
-    plan: "Region-wide guard today; heat-aware forecasting is the next model update. We publish the weak spot.",
+    plan: "Region-wide guard plus a heat-aware forecaster: false warnings in heatwaves cut by 41%. Still our weak spot, and we publish it.",
   },
   {
     risk: "Real-world performance differs from simulation",
@@ -409,9 +410,13 @@ export default function BusinessPage() {
             ))}
           </ul>
           <p className="mt-5 rounded-xl border border-border bg-surface-2 p-3.5 text-[13px] text-text-2">
-            <b>Pricing:</b> set after the pilot. We&apos;d rather publish real
-            costs — band build, battery life, gateway coverage, support time per
-            site — than guess a number for a slide.
+            <b>Pricing:</b> set after the pilot. What we know today: prototype parts cost{" "}
+            <b>{inr(BAND_BASE_INR)}</b> per band ({inr(BAND_GPS_INR)} with GPS) and{" "}
+            <b>{inr(GATEWAY_INR)}</b> per gateway at single-unit Indian retail, each part cited on the{" "}
+            <Link href="/hardware#cost" className="text-brand underline underline-offset-2">
+              hardware page
+            </Link>
+            . Battery life, gateway coverage and support time per site come from the pilot.
           </p>
         </div>
         <div>

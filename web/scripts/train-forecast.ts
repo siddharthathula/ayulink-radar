@@ -4,6 +4,9 @@
  *
  * Train seeds: 1-100. Test seeds: 101-200 (never seen in training).
  * Grid: 3 modes x 3 scenarios x 3 wear rates. Outbreak day varies 32-40.
+ * Training also includes HEATWAVE runs (calm + cluster, seeds 1-100 only) so
+ * the model learns that a region-wide shift is not a local cluster. Heatwave
+ * evaluation uses held-out seeds 101-150; noisy-sensor runs stay unseen.
  * Model: L2-regularised logistic regression, standardised features,
  * class-balanced loss, full-batch Adam. Pure TypeScript, no ML library.
  *
@@ -68,11 +71,32 @@ function makeRun(mode: Mode, scenario: Scenario, seed: number, wearRate: number,
     outbreakDay: 32 + (seed % 9),
   });
   const index = buildForecastIndex(result);
+  // Ground truth (training/evaluation only, never a model input): how many
+  // wearers in each zone carry an outbreak infection (tau 0..10) on each day.
+  const infected = new Map<string, number>();
+  for (const person of result.people) {
+    (result.obs[person.id] ?? []).forEach((o, day) => {
+      if (o.tau !== null && o.tau >= 0 && o.tau <= 10) {
+        const key = `${person.zoneId}:${day}`;
+        infected.set(key, (infected.get(key) ?? 0) + 1);
+      }
+    });
+  }
+  /** A TRUE escalation: the engine alerts within 3 days in a zone that really has a cluster. */
+  const trueEscalation = (zoneId: string, day: number): boolean | null => {
+    const engine = escalationLabel(index, zoneId, day);
+    if (engine === null || engine === false) return engine;
+    for (let ahead = 1; ahead <= FORECAST_HORIZON; ahead++) {
+      const row = index.zoneDay.get(`${zoneId}:${day + ahead}`);
+      if (row?.level === "alert" && (infected.get(`${zoneId}:${day + ahead}`) ?? 0) >= 3) return true;
+    }
+    return false;
+  };
   const rows: Row[] = [];
   const lastDay = result.config.days - 1 - FORECAST_HORIZON;
   for (let day = CLUSTER.firstDay; day <= lastDay; day++) {
     for (const zone of result.zones) {
-      const label = escalationLabel(index, zone.id, day);
+      const label = trueEscalation(zone.id, day);
       if (label === null) continue;
       const x = forecastFeatures(result, index, zone.id, day);
       rows.push({ x, y: label ? 1 : 0, mode, scenario, stress, watch: x[5], evidence: x[4] });
@@ -88,11 +112,16 @@ function makeRun(mode: Mode, scenario: Scenario, seed: number, wearRate: number,
   return { scenario, rows, firstAlertDay: result.firstAlertDay, preAlert };
 }
 
-function grid(seeds: number[]): Run[] {
+function grid(seeds: number[], withHeatwave = false): Run[] {
   const runs: Run[] = [];
   for (const mode of MODES)
     for (const scenario of SCENARIOS)
       for (const wear of WEAR_RATES) for (const seed of seeds) runs.push(makeRun(mode, scenario, seed, wear));
+  if (withHeatwave) {
+    for (const mode of MODES)
+      for (const scenario of ["calm", "cluster"] as Scenario[])
+        for (const seed of seeds) runs.push(makeRun(mode, scenario, seed, 0.8, "heatwave"));
+  }
   return runs;
 }
 
@@ -157,7 +186,7 @@ function train(rows: Row[]): ForecastModel {
     weights: Array.from(w).map(round),
     bias: round(b),
     threshold: 0.5,
-    trainedOn: "simulated seeds 1-100; 3 modes x 3 scenarios x wear 0.6/0.8/1.0",
+    trainedOn: "simulated seeds 1-100; 3 modes x 3 scenarios x wear 0.6/0.8/1.0, plus heatwave calm/cluster runs",
   };
   model.threshold = bestF1Threshold(rows.map((r) => forecastProbability(model, r.x)), rows.map((r) => r.y));
   return model;
@@ -289,7 +318,7 @@ function falseWarnings(model: ForecastModel, runs: Run[]) {
 function main() {
   const t0 = Date.now();
   console.log("simulating train grid...");
-  const trainRuns = grid(TRAIN_SEEDS);
+  const trainRuns = grid(TRAIN_SEEDS, true);
   const trainRows = trainRuns.flatMap((r) => r.rows);
   console.log(`train rows ${trainRows.length} (${((Date.now() - t0) / 1000).toFixed(0)}s)`);
   const model = train(trainRows);
@@ -304,7 +333,7 @@ function main() {
     SCENARIOS.map((s) => [s, metrics(model, testRows.filter((r) => r.scenario === s))]),
   );
 
-  console.log("stress test: heatwave + noisy (never trained on)...");
+  console.log("stress test on held-out seeds: heatwave (seen in training on other seeds) + noisy (never seen)...");
   const stress: Record<string, ReturnType<typeof metrics> & { falseWarnings: ReturnType<typeof falseWarnings> }> = {};
   for (const s of ["heatwave", "noisy"] as Stress[]) {
     const runs: Run[] = [];
@@ -322,9 +351,9 @@ function main() {
 
   const evalJson = {
     generatedAt: new Date().toISOString().slice(0, 10),
-    question: `Will this zone reach ALERT within the next ${FORECAST_HORIZON} days? (zones already on alert excluded)`,
-    data: "Simulated. Train seeds 1-100, held-out test seeds 101-200. 3 modes x 3 scenarios x wear 0.6/0.8/1.0.",
-    model: "Logistic regression, 9 features, class-balanced, L2. Pure TypeScript.",
+    question: `Will this zone reach a TRUE cluster ALERT within the next ${FORECAST_HORIZON} days? (an engine alert in a zone with >= 3 infected wearers; zones already on alert excluded)`,
+    data: "Simulated. Train seeds 1-100 (incl. heatwave runs), held-out test seeds 101-200. 3 modes x 3 scenarios x wear 0.6/0.8/1.0.",
+    model: `Logistic regression, ${FORECAST_FEATURES.length} features (incl. 3 region-relative), class-balanced, L2. Pure TypeScript.`,
     threshold: model.threshold,
     test: metrics(model, testRows),
     byMode,
@@ -335,8 +364,9 @@ function main() {
     featureImportance,
     caveats: [
       "Simulated data only. Real-world performance is unknown until a pilot.",
-      "The label is the engine's own ALERT, so this forecasts escalation, not disease.",
-      "Stress conditions (heatwave, noisy sensors) were never seen in training.",
+      "The training label uses simulation ground truth (who is infected). Real-world labels would come from confirmed clinic follow-up.",
+      "Forecasts escalation of a cluster alert, not any disease.",
+      "Heatwave runs were in training (seeds 1-100) and are evaluated on unseen seeds 101-150; noisy-sensor runs were never seen in training.",
     ],
     runtimeSeconds: Math.round((Date.now() - t0) / 1000),
   };

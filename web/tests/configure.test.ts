@@ -68,6 +68,16 @@ describe("ingest accepts module fields", () => {
     expect(validatePacket({ ...BASE, modules: ["ppg"], lat: 17.4, lng: 78.4 }).join()).toMatch(/gps module/);
   });
 
+  it("accepts a real gateway packet with no battery gauge and LoRa link metadata", () => {
+    const { batt_pct, ...noBattery } = BASE;
+    void batt_pct;
+    expect(
+      validatePacket({ ...noBattery, source: "hardware", link: "lora", rssi_dbm: -97, snr_db: 7.5, spo2_pct: 97, skin_temp_c: 33.2 }),
+    ).toEqual([]);
+    expect(validatePacket({ ...BASE, source: "simulated-but-claims-real" }).length).toBe(1);
+    expect(validatePacket({ ...BASE, link: "wifi" }).length).toBe(1);
+  });
+
   it("rejects out-of-range module values", () => {
     expect(validatePacket({ ...BASE, skin_temp_c: 80 }).length).toBe(1);
     expect(validatePacket({ ...BASE, lat: 17.4 }).join()).toMatch(/together/);

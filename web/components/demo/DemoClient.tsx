@@ -13,6 +13,7 @@ import {
   Keyboard,
   ListOrdered,
   MapPinned,
+  Play,
   ShieldAlert,
   SlidersHorizontal,
   TriangleAlert,
@@ -28,7 +29,7 @@ import type {
   Stress,
   ZoneDay,
 } from "@/lib/engine/types";
-import { displayDay, alertFeed, countFlaggedToday, zoneCounts } from "@/lib/ui/demo";
+import { displayDay, alertFeed, countFlaggedToday, defaultConsoleDay, zoneCounts } from "@/lib/ui/demo";
 import { demoRhythmFlags } from "@/lib/ui/rhythm";
 import { SimulatedBadge } from "@/components/SimulatedBadge";
 import { RadarMap } from "@/components/RadarMap";
@@ -81,11 +82,14 @@ export function DemoClient() {
   const [settings, updateSettings] = useSettings();
   const [modePick, setMode] = useState<Mode | null>(null);
   const mode: Mode = modePick ?? settings.defaultMode;
-  const [scenario, setScenario] = useState<Scenario>("calm");
+  // Judges skim: without ?tour=1 the console opens mid-outbreak (cluster
+  // scenario, the day after the first alert) instead of an all-zero screen.
+  const [scenario, setScenario] = useState<Scenario>(tour ? "calm" : "cluster");
   const [seed, setSeed] = useState(2026);
   const [wearRate, setWearRate] = useState(0.8);
   const [stress, setStress] = useState<Stress>("none");
-  const [day, setDay] = useState(28);
+  // null = "show the default active day" (computed from the run below).
+  const [dayPick, setDayPick] = useState<number | null>(tour ? 28 : null);
   const [playing, setPlaying] = useState(false);
   const [speedPick, setSpeed] = useState<number | null>(null);
   const speed = speedPick ?? settings.playbackSpeed;
@@ -109,6 +113,13 @@ export function DemoClient() {
       }),
     [mode, scenario, seed, wearRate, stress],
   );
+
+  const defaultDay = defaultConsoleDay(result, scenario);
+  const day = dayPick ?? defaultDay;
+  const openedMidOutbreak = dayPick === null && scenario !== "calm";
+  function setDay(next: number | ((value: number) => number)) {
+    setDayPick((previous) => (typeof next === "function" ? next(previous ?? defaultDay) : next));
+  }
 
   const rhythmFlags = useMemo(() => demoRhythmFlags(result.people), [result.people]);
   const counts = useMemo(() => zoneCounts(result, day), [result, day]);
@@ -178,12 +189,13 @@ export function DemoClient() {
   useEffect(() => {
     if (!playing) return;
     const timer = setInterval(() => {
-      setDay((previous) => {
-        if (previous >= 59) {
+      setDayPick((previous) => {
+        const current = previous ?? 28;
+        if (current >= 59) {
           setPlaying(false);
-          return previous;
+          return current;
         }
-        return previous + 1;
+        return current + 1;
       });
     }, 700 / speed);
     return () => clearInterval(timer);
@@ -195,7 +207,7 @@ export function DemoClient() {
     const timer = setTimeout(() => {
       setScenario("cluster");
       setStress("none");
-      setDay(34);
+      setDayPick(34);
       setPlaying(true);
       setSelectedZone(null);
       setSelectedPerson(null);
@@ -213,7 +225,7 @@ export function DemoClient() {
       // day reaching the first signal is the intended synchronisation here.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlaying(false);
-      setDay(firstSignalRow.day);
+      setDayPick(firstSignalRow.day);
       setSelectedZone(firstSignalRow.zoneId);
       setTab("alerts");
       setTourStep(3);
@@ -247,7 +259,7 @@ export function DemoClient() {
     const timer = setTimeout(() => {
       setSelectedPerson(null);
       setTab("alerts");
-      setDay(59);
+      setDayPick(59);
       setTourStep(5);
     }, 4400);
     return () => clearTimeout(timer);
@@ -345,8 +357,19 @@ export function DemoClient() {
     setPlaying(false);
   }
 
+  function replayOutbreak() {
+    setScenario("cluster");
+    setStress("none");
+    setSelectedPerson(null);
+    setSelectedZone(null);
+    setTab("alerts");
+    setDay(28);
+    setPlaying(true);
+  }
+
   function togglePlay() {
     if (!playing && day >= 59) setDay(28);
+    else if (dayPick === null) setDay(day);
     setPlaying((value) => !value);
   }
 
@@ -556,6 +579,26 @@ export function DemoClient() {
           <button type="button" onClick={() => setShowSitrep(true)} className="btn btn-primary min-h-9 px-3 text-[12.5px]" title="Situation report (R)">
             <FileText size={14} aria-hidden="true" />
             Situation report
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--alert-fill)]/30 bg-[var(--alert-soft)] px-4 py-3">
+        <p className="text-[13.5px] text-text">
+          <b>{scenario === "calm" ? "Calm season." : `Day ${displayDay(day)} of 32 — simulated outbreak.`}</b>{" "}
+          <span className="text-text-2">
+            {openedMidOutbreak
+              ? "We opened on the outbreak's peak day so you see the system working. Replay it from day 1, or take the 30-second tour."
+              : "Replay the whole 32-day outbreak to watch personal drift turn into a cluster alert."}
+          </span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={replayOutbreak} className="btn btn-primary min-h-9 px-3 text-[13px]">
+            <Play size={14} aria-hidden="true" /> Replay 32-day outbreak
+          </button>
+          {/* Full reload: the tour state machine is set up on first render. */}
+          <button type="button" onClick={() => window.location.assign(new URL("/demo?tour=1", window.location.href).toString())} className="btn min-h-9 px-3 text-[13px]">
+            30-sec tour
           </button>
         </div>
       </div>

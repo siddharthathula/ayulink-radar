@@ -260,11 +260,6 @@ function ci(values: [number, number] | null): string {
   return `${pct(values[0])}–${pct(values[1])}`;
 }
 
-function leadCi(values: [number, number] | null): string {
-  if (!values) return "—";
-  return `${values[0].toFixed(1)}–${values[1].toFixed(1)}`;
-}
-
 function leadCell(row: RunMetrics): string {
   if (row.medianLeadDays === null) return "—";
   return `${row.medianLeadDays.toFixed(1)} [${fmt(row.leadP25)}, ${fmt(row.leadP75)}]`;

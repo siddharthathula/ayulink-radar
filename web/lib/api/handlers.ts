@@ -203,11 +203,15 @@ export interface BandPacket {
   ts: number;
   hr_bpm: number;
   rr_ms?: number[];
-  activity: number;
+  activity?: number;
   worn: boolean;
   fall: boolean;
   seizure: boolean;
-  batt_pct: number;
+  batt_pct?: number;
+  source?: "hardware" | "test";
+  link?: "lora" | "espnow";
+  rssi_dbm?: number | null;
+  snr_db?: number | null;
   /** Optional, sent only by bands that carry the matching module. */
   modules?: string[];
   spo2_pct?: number;
@@ -234,11 +238,27 @@ export function validatePacket(value: unknown): string[] {
       problems.push("rr_ms must be an array of up to 300 numbers");
     }
   }
-  if (typeof value.activity !== "number" || value.activity < 0 || value.activity > 10) problems.push("activity must be 0–10");
+  // Optional: the gateway's packet does not carry an activity score.
+  if (value.activity !== undefined && (typeof value.activity !== "number" || value.activity < 0 || value.activity > 10)) {
+    problems.push("activity must be 0–10 when sent");
+  }
   for (const key of ["worn", "fall", "seizure"] as const) {
     if (typeof value[key] !== "boolean") problems.push(`${key} must be true or false`);
   }
-  if (typeof value.batt_pct !== "number" || value.batt_pct < 0 || value.batt_pct > 100) problems.push("batt_pct must be 0–100");
+  // Optional: the prototype band has no battery gauge, so it may omit battery.
+  if (value.batt_pct !== undefined && (typeof value.batt_pct !== "number" || value.batt_pct < 0 || value.batt_pct > 100)) {
+    problems.push("batt_pct must be 0–100 when sent");
+  }
+  if (value.source !== undefined && value.source !== "hardware" && value.source !== "test") {
+    problems.push('source must be "hardware" or "test"');
+  }
+  if (value.link !== undefined && value.link !== "lora" && value.link !== "espnow") {
+    problems.push('link must be "lora" or "espnow"');
+  }
+  for (const [key, low, high] of [["rssi_dbm", -150, 0], ["snr_db", -30, 30]] as Array<[string, number, number]>) {
+    const v = value[key];
+    if (v !== undefined && v !== null && (typeof v !== "number" || v < low || v > high)) problems.push(`${key} must be ${low}–${high}`);
+  }
 
   // Optional module fields (modular band). Each must be in a plausible range when present.
   const optional: Array<[string, number, number]> = [

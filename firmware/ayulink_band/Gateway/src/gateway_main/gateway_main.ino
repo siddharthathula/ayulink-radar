@@ -1109,6 +1109,10 @@ void processLoraPacket(uint8_t* buffer, size_t size, int rssi, uint32_t rx_ms, u
     }
 
     String out; serializeJson(doc, out);
+    // One verified packet per line on USB serial, for firmware/tools/gateway-bridge.mjs.
+    // Works with no WiFi or backend at all.
+    Serial.print(F("AYU-JSON "));
+    Serial.println(out);
 
     if (m.event == ayulink::EV_FALL_CANCEL || m.event == ayulink::EV_SOS_CANCEL) {
       StaticJsonDocument<256> cdoc;

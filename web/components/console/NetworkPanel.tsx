@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { BatteryMedium, CloudOff, RadioTower, RefreshCcw, Wifi } from "lucide-react";
 import type { SimResult } from "@/lib/engine/types";
 import { formatAgo, gatewayTelemetry } from "@/lib/ui/ops";
+import { LiveHardwarePanel } from "@/components/console/LiveHardwarePanel";
 
 export function NetworkPanel({ result, day }: { result: SimResult; day: number }) {
   const rows = useMemo(() => gatewayTelemetry(result, day), [result, day]);
@@ -83,6 +84,7 @@ export function NetworkPanel({ result, day }: { result: SimResult; day: number }
         Bands need no internet. Each gateway keeps packets when its uplink drops and forwards them
         later, so the console catches up without gaps.
       </p>
+          <LiveHardwarePanel />
     </section>
   );
 }

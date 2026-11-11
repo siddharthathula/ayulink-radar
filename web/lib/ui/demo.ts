@@ -134,3 +134,24 @@ export function zoneName(result: SimResult, zoneId: string | null): string {
   if (!zoneId) return "All zones";
   return result.zones.find((zone) => zone.id === zoneId)?.name ?? zoneId;
 }
+
+/**
+ * Day the console opens on without ?tour=1: the outbreak's peak (most zones on alert,
+ * earliest on ties), so judges land on an active cluster instead of an all-quiet day 1.
+ */
+export function defaultConsoleDay(
+  result: { firstAlertDay: number | null; zoneDays: { day: number; level: string }[] },
+  scenario: string,
+): number {
+  if (scenario === "calm" || result.firstAlertDay === null) return 28;
+  const counts = new Map<number, number>();
+  for (const row of result.zoneDays) {
+    if (row.level === "alert") counts.set(row.day, (counts.get(row.day) ?? 0) + 1);
+  }
+  let best = result.firstAlertDay;
+  for (const [day, count] of counts) {
+    const top = counts.get(best) ?? 0;
+    if (count > top || (count === top && day < best)) best = day;
+  }
+  return best;
+}

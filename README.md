@@ -19,7 +19,6 @@ Bands work **offline over LoRa**; the same system runs on smartwatches in a city
 
 **[▶ Live demo](https://ayulink-radar.vercel.app)** · **[30-second guided tour](https://ayulink-radar.vercel.app/demo?tour=1)** · **[The AI inside](https://ayulink-radar.vercel.app/ai)** · **[Configure a band](https://ayulink-radar.vercel.app/configure)** · **[Business](https://ayulink-radar.vercel.app/business)** · **[Field app](https://ayulink-radar.vercel.app/field)** · **[API](https://ayulink-radar.vercel.app/api-docs)**
 
-<!-- TODO before submission: confirm the live URL above matches your Vercel deploy, add the 90-second video link and team member names. -->
 
 </div>
 
@@ -43,7 +42,7 @@ Bands work **offline over LoRa**; the same system runs on smartwatches in a city
 | **The problem** | Fever outbreaks are noticed only after sick people reach a clinic. In villages far from a PHC, that is days too late. |
 | **The idea** | Everyone's heart beats a little faster when an infection starts. One person's rise means little. **Many people in the same hamlet rising together** is a warning. |
 | **What we built** | A modular wristband + LoRa gateway (real hardware), a detection engine, **two trained AI models** (3-day escalation forecaster, rhythm screen), a grounded **operator assistant** (text + voice), an operator console, a band configurator, a field app for ASHA workers, and 6 APIs. |
-| **The AI** | 8 pieces from first reading to visit list. The forecaster warned before the alert in **87%** of outbreak zones, a median **2 days** early (AUROC **0.949** on held-out runs). See [The AI inside](#the-ai-inside). |
+| **The AI** | 8 pieces from first reading to visit list. The forecaster warned before the alert in **81%** of outbreak zones, a median **2 days** early (AUROC **0.948** on held-out runs; **0.907** in heatwaves). See [The AI inside](#the-ai-inside). |
 | **For whom** | Villages under a PHC, elders living alone, office workers, heart patients after discharge, outdoor workers in heat, camps and mass events — one band, [configured per person](#one-band-built-around-each-person). |
 | **Where** | Shown around **Hyderabad**: rural Rangareddy hamlets, 8 towns from Patancheru to Uppal, and apartment towers in the Financial District. |
 | **Result (simulated)** | In a village with 80% daily band wear, **95.0%** of seeded clusters were caught, a median **3 days** before simulated clinic detection, with 0.004 false alerts per zone per month. |
@@ -313,26 +312,35 @@ independent. Source: [`web/public/data/calibration.json`](web/public/data/calibr
 
 ### 3-day zone escalation forecaster
 
-Logistic model, 9 zone-level features, trained on simulated seeds 1–100 and tested on **held-out
-seeds 101–200** (3 settings × 3 scenarios × wear 0.6 / 0.8 / 1.0; 504,118 zone-days).
-Question: *will this zone reach ALERT within 3 days?* Source:
+Logistic model, **12 zone-level features** (3 of them region-relative), trained on simulated seeds
+1–100 **including heatwave runs**, tested on **held-out seeds 101–200** (3 settings × 3 scenarios ×
+wear 0.6 / 0.8 / 1.0; 504,118 zone-days). Question: *will this zone reach a true cluster ALERT
+within 3 days?* (an engine alert in a zone with ≥3 infected wearers). Source:
 [`web/public/data/forecast_eval.json`](web/public/data/forecast_eval.json), produced by
 [`web/scripts/train-forecast.ts`](web/scripts/train-forecast.ts).
 
 | Held-out test | AI forecaster | Without AI |
 |---|---|---|
-| AUROC | **0.949** | 0.918 (cluster p-value alone) |
+| AUROC | **0.948** | 0.919 (cluster p-value alone) |
 | F1 | **0.487** | 0.326 ("zone on watch" rule) |
-| Recall | **0.625** | 0.317 |
-| Warned before the alert | **87%** of outbreak zones, median **2 days** early | — |
-| False warnings in calm runs | 0.073 per zone per 30 days | — |
+| Precision / recall | **0.424 / 0.570** | 0.335 / 0.317 |
+| Warned before the alert | **81%** of outbreak zones, median **2 days** early | — |
+| False warnings in calm runs | 0.047 per zone per 30 days | — |
 
-By setting: village AUROC 0.948, city 0.957, society 0.938.
-In plain words: about 4 in 10 high-risk warnings become an alert within 3 days; the rest cost one extra visit.
+By setting: village AUROC 0.947, city 0.956, society 0.939.
+In plain words: about 4 in 10 high-risk warnings become a true alert within 3 days; the rest cost one extra visit.
 
-**Weak spot, published:** under a heatwave (never seen in training) AUROC drops to
-0.822 with **1.824 false warnings per zone per 30 days**. Noisy sensors hold up (AUROC 0.948).
-The label is the engine's own alert, so this forecasts *escalation*, not disease.
+**Heatwave fix.** v1 learned from the engine's own alerts, so heat-driven false alerts were
+"correct" to predict, and it scored AUROC 0.822 with 1.824 false warnings per zone per 30 days.
+v2 adds region-relative drift (zone vs the region's median today and over 3 days, plus the share
+of all zones elevated) and trains on the *true* escalation label with heatwave runs included.
+Held-out heatwave seeds (101–150): **AUROC 0.907**, **1.079 false warnings per zone per 30 days**
+(−41%). Still the weak spot — trust it less on very hot weeks. Noisy sensors (never trained on):
+AUROC 0.948, 0.017 false warnings.
+
+**Honest notes:** the label uses simulation ground truth (who is infected); in the field it would
+come from confirmed clinic follow-up. v1 and v2 answer slightly different questions, so their
+AUROCs are not strictly comparable. This forecasts *escalation of a cluster*, not any disease.
 
 ### Irregular-rhythm screening model
 
@@ -352,10 +360,10 @@ The band uses an optical pulse sensor, not ECG. **On-band validation is pending.
 
 | Dimension | Status | Detail |
 |---|---|---|
-| **Technical** | **Built and tested** | Band firmware (ESP32, MAX30102, MPU6050, LM35, SX1278, NEO-6M), LoRa gateway, detection engine, rhythm model, escalation forecaster, operator console, field app and 6 API endpoints. 48 automated tests including Python ↔ TypeScript ↔ C model parity. |
+| **Technical** | **Built and tested** | Band firmware (ESP32, MAX30102, MPU6050, LM35, SX1278, NEO-6M), LoRa gateway, detection engine, rhythm model, escalation forecaster, operator console, field app and 6 API endpoints. 54 automated tests including Python ↔ TypeScript ↔ C model parity. |
 | **Connectivity** | **Designed for no internet** | Bands → LoRa → gateway with store-and-forward. The console runs entirely in the browser after first load. Only the operator side needs a link, and only to sync. |
 | **Operational** | **Fits existing work** | ASHAs already do home visits. AyuLink tells her *which* homes first. The visit form takes about 30 seconds and saves offline. Band charging and wear compliance are the main risks; ASHA visits double as a wear-and-charge nudge. |
-| **Economic** | **Costing in progress** | Built from commodity modules (ESP32, MAX30102, MPU6050, SX1278). Per-band bill of materials: *TBD — being costed from our purchase records.* One gateway serves a cluster of hamlets; the software runs on free tiers. |
+| **Economic** | **Prototype BOM priced** | Built from commodity modules (ESP32, MAX30102, MPU6050, LM35, SX1278, SH1106). Single-unit Indian retail, GST included, checked 12 Nov 2026 with each listing cited on [/hardware](https://ayulink-radar.vercel.app/hardware#cost): **₹1,817** per band without GPS, **₹2,082** with NEO-6M GPS, **₹1,083** per gateway (small parts like the LM35, antenna and strap not yet priced). Volume / custom-PCB pricing will be quoted, not guessed, before the pilot. One gateway serves a cluster of hamlets; the software runs on free tiers. |
 | **Regulatory & ethical** | **Screening, not diagnosis** | No disease names, no treatment advice, aggregate-only urban view, small zones suppressed, pseudonymous codes only. A real deployment needs consent, data-protection compliance (Digital Personal Data Protection Act, 2023) and an ethics review. |
 | **Who would run it** | **Existing system** | Complements IDSP/IHIP; it does not replace them. Integration with ABDM / IHIP is future work. **No government partnership is claimed.** |
 
@@ -490,6 +498,23 @@ Built by our team and bench-tested. Three wristbands and one gateway exist.
 
 Settings: [`firmware/ayulink_band/common/ayulink_lora.h`](firmware/ayulink_band/common/ayulink_lora.h).
 
+### Live hardware in the console
+
+The gateway prints every verified packet on USB serial as one line (`AYU-JSON {...}`).
+A zero-dependency Node bridge carries those packets to the console and to `/api/ingest`:
+
+```bash
+node firmware/tools/gateway-bridge.mjs --port /dev/ttyUSB0 --ingest https://ayulink-radar.vercel.app/api/ingest
+# keep a recording for a backup demo:   --record session.jsonl
+# replay that recording (labelled RECORDED):   --replay session.jsonl
+```
+
+In the console's **LoRa network** card, press **Connect bridge**. Real packets show a green
+**"Live LoRa packet received"** badge with BPM, SpO₂, skin temperature, RSSI and SNR, and the card
+shows **Gateway silent** if packets stop for 30 s. Live packets are never mixed into the simulated
+village. **Send test packet** posts a clearly labelled *synthetic* packet to `/api/ingest` to check the
+pipeline without hardware (amber badge, band id `TEST-D103`).
+
 **How we built it**
 
 <table>
@@ -536,8 +561,8 @@ Settings: [`firmware/ayulink_band/common/ayulink_lora.h`](firmware/ayulink_band/
 |---|---|
 | **Problem relevance (PS 01)** | Early detection → personal drift + cluster alert + rhythm screening. Accessible → offline LoRa, low-cost band, local-language notes, field app. |
 | **Innovation & originality** | Population-level detection from cheap wearables at hamlet scale; one engine for village / city / society; one model in three runtimes. See [§4](#4-what-is-new--and-what-is-not). |
-| **Technical implementation** | Real firmware + gateway, two trained models with held-out evaluation, a statistical engine, a modular band configurator, 6 APIs, 47 tests, CI, reproducible evaluation. |
-| **AI / intelligence** | 8 AI pieces end to end: trained **3-day escalation forecaster** (AUROC 0.949, beats the non-AI baseline), trained rhythm classifier (AUROC 0.989 on held-out records), statistical cluster detection, grounded **Ask AyuLink** assistant (text + voice, offline), fact-locked multilingual notes. See [The AI inside](#the-ai-inside). |
+| **Technical implementation** | Real firmware + gateway, two trained models with held-out evaluation, a statistical engine, a modular band configurator, 6 APIs, 54 tests, CI, reproducible evaluation. |
+| **AI / intelligence** | 8 AI pieces end to end: trained, heat-aware **3-day escalation forecaster** (AUROC 0.948, heatwave 0.907, beats the non-AI baseline), trained rhythm classifier (AUROC 0.989 on held-out records), statistical cluster detection, grounded **Ask AyuLink** assistant (text + voice, offline), fact-locked multilingual notes. See [The AI inside](#the-ai-inside). |
 | **Business viability** | Six customer segments, recurring revenue, sourced market size, GTM from one PHC pilot, risks and mitigations. See [Business model](#business-model). |
 | **Real-world impact** | ASHA-first workflow, situation report for PHCs, seasonal and mass-gathering use cases, India-scale rollout path. |
 | **Feasibility** | [§7](#7-feasibility): what is built, what is pending, what it costs, what it needs (≥ 60% daily wear). |
@@ -563,7 +588,7 @@ git clone https://github.com/siddharthathula/ayulink-radar.git
 cd ayulink-radar/web
 npm install
 npm run dev          # http://localhost:3000
-npm test             # 47 tests: engine, forecaster, assistant, configurator, rhythm parity, API
+npm test             # 54 tests: engine, console default, forecaster, assistant, configurator, rhythm parity, API
 npm run lint         # 0 errors
 npm run build        # production build
 npm run eval:all     # one command: detection grid, calibration, forecaster (~11 minutes)
@@ -603,7 +628,8 @@ web/        Next.js app: console, field app, rhythm lab, impact, method, API rou
   scripts/      evaluate.ts, train-forecast.ts — produce web/public/data/*.json
   tests/        engine, rhythm parity and API tests
 ml/         rhythm model training, features, export (Python)
-firmware/   ESP32 band, gateway, dispenser firmware; rhythm model as C header + demo sketch
+firmware/   ESP32 band & LoRa gateway firmware, WPC duty-cycle limiter; rhythm model as C header + demo sketch
+  tools/    gateway-bridge.mjs: gateway USB serial -> console (live) + /api/ingest
 docs/       method, architecture, images
 ```
 
@@ -676,7 +702,7 @@ app and API are new for this event.
 
 <div align="center">
 
-Built by **Team AyuLink** for INNOVEX 2026 · MIT License
+Built by **Team AyuLink (Siddhartha Thula & Team)** for INNOVEX 2026 · MIT License
 
 *Screening flag, not a diagnosis.*
 

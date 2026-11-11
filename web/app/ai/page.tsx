@@ -395,18 +395,21 @@ export default function AiPage() {
                 ))}
               </ul>
               <p className="mt-3 text-[11.5px] text-muted">
-                “Region-wide shift” pulls risk down: when everyone moves
-                together it&apos;s usually heat or a festival, not an outbreak.
+                Region-relative features ask “is this zone drifting more than
+                everyone else today?” When every zone moves together it&apos;s
+                usually heat or a festival, not an outbreak.
               </p>
             </div>
             <div className="rounded-xl border border-[var(--watch-fill)]/40 bg-[var(--watch-soft)] p-4 text-[13px] text-text-2">
               <p className="font-bold text-text">Honest limits</p>
               <ul className="mt-1.5 space-y-1">
                 <li>
-                  • Heatwave (never trained on): AUROC{" "}
+                  • Heatwave (held-out seeds): AUROC{" "}
                   {ev.stress.heatwave?.auroc},{" "}
                   {ev.stress.heatwave?.falseWarnings.perZonePer30Days} false
-                  warnings per zone per month. On very hot weeks, trust it less.
+                  warnings per zone per month — down from 1.82 before the
+                  region-relative features. Still the weak spot: on very hot
+                  weeks, trust it less.
                 </li>
                 <li>
                   • Noisy sensors: AUROC {ev.stress.noisy?.auroc} — holds up.

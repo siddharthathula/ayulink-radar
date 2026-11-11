@@ -23,6 +23,11 @@ export const FORECAST_FEATURES = [
   { key: "neighborLevel", label: "Neighbouring zone on watch or alert" },
   { key: "neighborRate", label: "Drifting share in neighbouring zones" },
   { key: "regionWide", label: "Region-wide shift (heat, festival)" },
+  // Region-relative context: separates a local cluster from a region-wide
+  // shift such as a heatwave, where every zone drifts together.
+  { key: "flagRateRel", label: "Drifting share above the region's median today" },
+  { key: "windowRateRel", label: "3-day drifting share above the region's median" },
+  { key: "regionElevated", label: "Share of all zones elevated today" },
 ] as const;
 
 export type ForecastFeatureKey = (typeof FORECAST_FEATURES)[number]["key"];
@@ -62,6 +67,7 @@ export interface ForecastIndex {
   zoneDay: Map<string, ZoneDay>; // `${zoneId}:${day}`
   flaggedByZoneDay: Map<string, number>; // drifting wearers that day
   validByZoneDay: Map<string, number>; // wearers with a valid day
+  regionByDay: Map<number, { medianFlagRate: number; medianWindowRate: number; elevatedShare: number }>;
 }
 
 export function buildForecastIndex(result: SimResult): ForecastIndex {
@@ -78,7 +84,43 @@ export function buildForecastIndex(result: SimResult): ForecastIndex {
       if (drift[day]?.flagged) flaggedByZoneDay.set(key, (flaggedByZoneDay.get(key) ?? 0) + 1);
     }
   }
-  return { zoneDay, flaggedByZoneDay, validByZoneDay };
+  const index: ForecastIndex = { zoneDay, flaggedByZoneDay, validByZoneDay, regionByDay: new Map() };
+  const days = Math.max(0, ...Object.values(result.obs).map((o) => o.length));
+  for (let day = 0; day < days; day++) {
+    const flagRates: number[] = [];
+    const windowRates: number[] = [];
+    let elevated = 0;
+    for (const zone of result.zones) {
+      flagRates.push(rateAt(index, zone.id, day));
+      const row = zoneDay.get(`${zone.id}:${day}`);
+      const n = row?.n ?? 0;
+      windowRates.push(n > 0 ? (row?.k ?? 0) / n : 0);
+      if (excessZ(row) > 2) elevated++;
+    }
+    index.regionByDay.set(day, {
+      medianFlagRate: median(flagRates),
+      medianWindowRate: median(windowRates),
+      elevatedShare: result.zones.length ? elevated / result.zones.length : 0,
+    });
+  }
+  return index;
+}
+
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/** Standardised excess of today's 3-day count over the zone's own normal. */
+function excessZ(row: ZoneDay | undefined): number {
+  const n = row?.n ?? 0;
+  const k = row?.k ?? 0;
+  const p0 = row?.p0 ?? 0;
+  const expected = n * p0;
+  const sd = Math.sqrt(Math.max(expected * (1 - p0), 0.25));
+  return Math.max(-3, Math.min(8, (k - expected) / sd));
 }
 
 function rateAt(index: ForecastIndex, zoneId: string, day: number): number {
@@ -99,13 +141,10 @@ export function forecastFeatures(
   const zone = result.zones.find((z) => z.id === zoneId);
   const n = row?.n ?? 0;
   const k = row?.k ?? 0;
-  const p0 = row?.p0 ?? 0;
   const flagRate = rateAt(index, zoneId, day);
   const flagRise = flagRate - rateAt(index, zoneId, day - 2);
   const windowRate = n > 0 ? k / n : 0;
-  const expected = n * p0;
-  const sd = Math.sqrt(Math.max(expected * (1 - p0), 0.25));
-  const excess = Math.max(-3, Math.min(8, (k - expected) / sd));
+  const excess = excessZ(row);
   const evidence = Math.min(10, -Math.log10(Math.max(row?.pValue ?? 1, 1e-12))) / 10;
   const watch = row?.level === "watch" ? 1 : 0;
   let neighborLevel = 0;
@@ -116,7 +155,24 @@ export function forecastFeatures(
     neighborRate = Math.max(neighborRate, rateAt(index, neighborId, day));
   }
   const regionWide = row?.regionWide ? 1 : 0;
-  return [flagRate, flagRise, windowRate, excess, evidence, watch, neighborLevel, neighborRate, regionWide];
+  const region = index.regionByDay.get(day);
+  const flagRateRel = flagRate - (region?.medianFlagRate ?? 0);
+  const windowRateRel = windowRate - (region?.medianWindowRate ?? 0);
+  const regionElevated = region?.elevatedShare ?? 0;
+  return [
+    flagRate,
+    flagRise,
+    windowRate,
+    excess,
+    evidence,
+    watch,
+    neighborLevel,
+    neighborRate,
+    regionWide,
+    flagRateRel,
+    windowRateRel,
+    regionElevated,
+  ];
 }
 
 export function forecastLogit(model: ForecastModel, x: number[]): number {

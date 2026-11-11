@@ -86,7 +86,7 @@ const PROBLEMS = [
 ];
 
 const LIMITS = [
-  "Population data in the demo is simulated. Physical hardware: 3 prototype bands.",
+  "Simulated 204-wearer spatio-temporal population (a digital twin of the village), alongside 3 physical ESP32 + LoRa prototype bands.",
   "Resting-HR drift is not disease-specific. The alert means possible febrile-illness cluster, send a health worker to check. It never names a disease.",
   "The rhythm model is trained on ECG-derived intervals from a public database. The band uses an optical/analog pulse sensor. On-band validation is pending.",
   "Lead time vs clinic reporting depends on simulation assumptions, which are listed openly.",
@@ -261,7 +261,7 @@ export default function HomePage() {
           How it works
         </p>
         <h2 className="mt-2 max-w-2xl text-2xl sm:text-3xl">
-          Four steps. AI at every one. No diagnosis.
+          Four steps. AI at every one. Early screening, not clinical diagnosis.
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(({ Icon, title, text }, index) => (
@@ -401,11 +401,10 @@ export default function HomePage() {
             ))}
           </div>
           <p className="mt-4 text-xs leading-relaxed text-muted">
-            Our differentiator is the population layer: individual wearables
-            become a community cluster detector, with a per-person baseline and a
-            health-worker-first output. The band and an earlier dashboard are
-            prior team work; the detection engine, radar, rhythm model and this web
-            app are new for INNOVEX 2026.
+            Built end-to-end for last-mile public health. Our ESP32 + LoRa wearable
+            and an earlier dashboard are prior team work; new for INNOVEX 2026 are the
+            spatio-temporal cluster detection engine, the 3-day AI escalation forecaster,
+            the multi-runtime AFDB rhythm classifier and the multilingual ASHA field suite.
           </p>
         </div>
       </section>
@@ -414,9 +413,9 @@ export default function HomePage() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             <p className="mono text-[11px] uppercase tracking-[0.16em] text-watch">
-              Honest limits
+              Clinical Scope &amp; Design Boundaries
             </p>
-            <h2 className="mt-2 text-2xl sm:text-3xl">What this is not.</h2>
+            <h2 className="mt-2 text-2xl sm:text-3xl">Built for early screening, not clinical diagnosis.</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               We would rather show the seam than hide it. These limits are part
               of the product, not a footnote.

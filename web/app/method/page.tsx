@@ -9,6 +9,7 @@ import {
 } from "@/lib/results";
 import { NoiseChart } from "@/components/method/NoiseChart";
 import calibrationJson from "@/public/data/calibration.json";
+import { FORECAST_EVAL } from "@/lib/ai/forecastModel";
 
 interface CalibrationRow {
   mode: string;
@@ -256,6 +257,25 @@ export default function MethodPage() {
                   Fibrillation Database. It flags irregular rhythm; it does not
                   identify a disease. The band uses an optical pulse sensor, and
                   on-band validation is pending.
+                </p>
+              </div>
+              <div className="card p-4 sm:col-span-2">
+                <h3 className="text-base">E · 3-day escalation forecaster</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                  Logistic regression on 12 zone-level features, three of them
+                  region-relative (“is this zone drifting more than the rest of
+                  the region today?”). Label: a true cluster alert within 3
+                  days, so heat-driven false alerts are not rewarded. Trained on
+                  seeds 1–100 including heatwave runs. Held-out seeds 101–200:
+                  AUROC <span className="mono">{FORECAST_EVAL.test.auroc}</span>,
+                  heatwave AUROC{" "}
+                  <span className="mono">{FORECAST_EVAL.stress.heatwave?.auroc}</span>{" "}
+                  with{" "}
+                  <span className="mono">
+                    {FORECAST_EVAL.stress.heatwave?.falseWarnings.perZonePer30Days}
+                  </span>{" "}
+                  false warnings per zone per 30 days. Details on{" "}
+                  <Link href="/ai" className="underline">/ai</Link>.
                 </p>
               </div>
             </div>

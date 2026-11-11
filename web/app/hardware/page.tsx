@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BAND_BASE_INR, BAND_GPS_INR, BOM, BOM_CHECKED_ON, GATEWAY_INR, NOT_PRICED, inr } from "@/lib/hardware/bom";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,7 +18,6 @@ export const metadata: Metadata = {
     "The AyuLink wristband and LoRa gateway: parts, packet schema, what runs on the band, and what remains unvalidated.",
 };
 
-const bandCost = process.env.BAND_COST_INR?.trim();
 
 const PARTS = [
   {
@@ -204,7 +204,7 @@ export default function HardwarePage() {
         <h2 id="parts" className="text-xl">Parts</h2>
         <p className="mt-1 text-sm text-muted">
           Confirmed against the provided wristband firmware and wiring guide.
-          Prices are not invented: the BOM is still being costed.
+          Prices are in the cost section below, each from a cited retail listing.
         </p>
         <div className="mt-4 overflow-x-auto rounded-[14px] border border-border">
           <table className="w-full min-w-[620px] border-collapse text-left text-sm">
@@ -213,7 +213,6 @@ export default function HardwarePage() {
                 <th scope="col" className="px-4 py-3 font-medium">Part</th>
                 <th scope="col" className="px-4 py-3 font-medium">Role</th>
                 <th scope="col" className="px-4 py-3 font-medium">Note</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Cost</th>
               </tr>
             </thead>
             <tbody>
@@ -222,16 +221,11 @@ export default function HardwarePage() {
                   <td className="px-4 py-3 font-medium text-text">{row.part}</td>
                   <td className="px-4 py-3 text-muted">{row.role}</td>
                   <td className="px-4 py-3 text-muted">{row.note}</td>
-                  <td className="mono px-4 py-3 text-right text-muted">TBD</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-[11px] text-muted">
-          BOM total: <span className="mono">{bandCost ? `₹${bandCost}` : "TBD"}</span>.
-          The cost model is not filled yet.
-        </p>
       </section>
 
       <section className="mt-10" aria-labelledby="schema">
@@ -320,11 +314,15 @@ export default function HardwarePage() {
 
       <section className="mt-10" aria-labelledby="cost">
         <h2 id="cost" className="text-xl">Cost</h2>
+        <p className="mt-1 max-w-[68ch] text-sm text-muted">
+          Single-unit Indian retail prices (GST included), checked {BOM_CHECKED_ON}. Hobby-retail
+          prices for a hand-built prototype, not a production quote.
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {[
-            { label: "Per band", value: bandCost ? `₹${bandCost}` : "TBD" },
-            { label: "Per gateway", value: "TBD" },
-            { label: "Per village of 200", value: "TBD" },
+            { label: "Band, no GPS", value: inr(BAND_BASE_INR) },
+            { label: "Band with GPS", value: inr(BAND_GPS_INR) },
+            { label: "Gateway", value: inr(GATEWAY_INR) },
           ].map((row) => (
             <div key={row.label} className="card p-4">
               <p className="text-[11px] text-muted">{row.label}</p>
@@ -332,9 +330,39 @@ export default function HardwarePage() {
             </div>
           ))}
         </div>
+        <div className="mt-4 overflow-x-auto rounded-[14px] border border-border">
+          <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+            <thead className="bg-surface-2 text-[11px] uppercase tracking-wide text-muted">
+              <tr>
+                <th scope="col" className="px-4 py-3 font-medium">Part</th>
+                <th scope="col" className="px-4 py-3 font-medium">Used in</th>
+                <th scope="col" className="px-4 py-3 font-medium">Source</th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BOM.map((line) => (
+                <tr key={line.part} className="border-t border-border">
+                  <td className="px-4 py-3 font-medium text-text">{line.part}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {[line.inBand ? (line.gpsOnly ? "band (GPS variant)" : "band") : null, line.inGateway ? "gateway" : null]
+                      .filter(Boolean)
+                      .join(" + ")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <a href={line.url} target="_blank" rel="noreferrer" className="text-info underline underline-offset-2">
+                      {line.retailer}
+                    </a>
+                  </td>
+                  <td className="mono px-4 py-3 text-right">{inr(line.priceInr)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p className="mt-2 text-[11px] text-muted">
-          Every figure will be computed from <span className="mono">docs/bom.csv</span>;
-          until that file exists, the figures stay TBD. No rounding or guesses.
+          Not priced yet (small parts, not included in the totals): {NOT_PRICED.join(", ")}. Volume and
+          custom-PCB pricing will be quoted, not estimated, before the pilot.
         </p>
       </section>
 
