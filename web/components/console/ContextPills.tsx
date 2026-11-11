@@ -54,6 +54,8 @@ const SHORTCUTS: Array<[string, string]> = [
   ["C", "Simulate cluster"],
   ["S", "Simulate spread"],
   ["R", "Situation report"],
+  ["A", "Ask AyuLink assistant"],
+  ["F", "AI forecast tab"],
   ["Esc", "Close drawer or dialog"],
   ["?", "This help"],
 ];

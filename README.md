@@ -2,12 +2,14 @@
 
 # AyuLink Radar
 
-### See an outbreak before the clinic does.
+### It knows your normal. And when your street isn't.
 
-A community early-warning system for India. Low-cost wristbands learn each person's normal
-resting heart rate. When several people in one hamlet drift up **together**, the console raises a
-cluster alert and hands the health worker a ranked visit list, days before clinic reports.
-Bands work **offline over LoRa**. Only the operator console needs internet.
+An AI-powered early-warning system for everyone, anywhere in India. A low-cost, **modular** wristband —
+or the smartwatch you already wear — learns each person's own resting heart rate. AI spots quiet
+shifts, notices when **many neighbours shift together**, **forecasts which area will flare up in the
+next 3 days**, and tells a health worker, a family or a clinic who to check first. An **operator
+assistant** answers "who should I visit first?" in plain words, even offline.
+Bands work **offline over LoRa**; the same system runs on smartwatches in a city high-rise.
 
 **INNOVEX 2026 · PS 01 — AI-Powered Healthcare:** *"Develop intelligent solutions for early disease detection and accessible healthcare."*
 
@@ -15,7 +17,7 @@ Bands work **offline over LoRa**. Only the operator console needs internet.
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![Status: screening prototype](https://img.shields.io/badge/status-screening%20prototype-orange)
 
-**[▶ Live demo](https://ayulink-radar.vercel.app)** · **[30-second guided tour](https://ayulink-radar.vercel.app/demo?tour=1)** · **[Field app](https://ayulink-radar.vercel.app/field)** · **[API](https://ayulink-radar.vercel.app/api-docs)**
+**[▶ Live demo](https://ayulink-radar.vercel.app)** · **[30-second guided tour](https://ayulink-radar.vercel.app/demo?tour=1)** · **[The AI inside](https://ayulink-radar.vercel.app/ai)** · **[Configure a band](https://ayulink-radar.vercel.app/configure)** · **[Business](https://ayulink-radar.vercel.app/business)** · **[Field app](https://ayulink-radar.vercel.app/field)** · **[API](https://ayulink-radar.vercel.app/api-docs)**
 
 <!-- TODO before submission: confirm the live URL above matches your Vercel deploy, add the 90-second video link and team member names. -->
 
@@ -40,9 +42,12 @@ Bands work **offline over LoRa**. Only the operator console needs internet.
 |---|---|
 | **The problem** | Fever outbreaks are noticed only after sick people reach a clinic. In villages far from a PHC, that is days too late. |
 | **The idea** | Everyone's heart beats a little faster when an infection starts. One person's rise means little. **Many people in the same hamlet rising together** is a warning. |
-| **What we built** | A wristband + LoRa gateway (real hardware), a detection engine, a trained rhythm model, an operator console, a field app for ASHA workers, and an API. |
+| **What we built** | A modular wristband + LoRa gateway (real hardware), a detection engine, **two trained AI models** (3-day outbreak forecaster, rhythm screen), a grounded **operator assistant** (text + voice), an operator console, a band configurator, a field app for ASHA workers, and 6 APIs. |
+| **The AI** | 8 pieces from first reading to visit list. The forecaster warned before the alert in **87%** of outbreak zones, a median **2 days** early (AUROC **0.944** on held-out runs). See [The AI inside](#the-ai-inside). |
+| **For whom** | Villages under a PHC, elders living alone, office workers, heart patients after discharge, outdoor workers in heat, camps and mass events — one band, [configured per person](#one-band-built-around-each-person). |
 | **Where** | Shown around **Hyderabad**: rural Rangareddy hamlets, 8 towns from Patancheru to Uppal, and apartment towers in the Financial District. |
 | **Result (simulated)** | In a village with 80% daily band wear, **97.5%** of seeded clusters were caught, a median **3 days** before simulated clinic detection. |
+| **Business** | Recurring software for public health first, then families, employers, hospitals and campuses. See [Business model](#business-model). |
 | **Honest limit** | Population data is simulated. Needs ≥ 60% daily wear. Not a medical device. |
 
 ---
@@ -51,13 +56,13 @@ Bands work **offline over LoRa**. Only the operator console needs internet.
 
 1. [A story from the monsoon](#1-a-story-from-the-monsoon)
 2. [The problem](#2-the-problem)
-3. [Our solution](#3-our-solution)
+3. [Our solution](#3-our-solution) · [The AI inside](#the-ai-inside) · [One band, built around each person](#one-band-built-around-each-person)
 4. [What is new](#4-what-is-new--and-what-is-not)
 5. [How it works](#5-how-it-works)
 6. [Results](#6-results)
 7. [Feasibility](#7-feasibility)
 8. [Use cases: who, where, when — around Hyderabad](#8-use-cases-who-where-when--around-hyderabad)
-9. [Scalability: from one PHC to all of India](#9-scalability-from-one-phc-to-all-of-india)
+9. [Scalability: from one PHC to all of India](#9-scalability-from-one-phc-to-all-of-india) · [Business model](#business-model)
 10. [Hardware](#10-hardware) · [Product tour](#product-tour)
 11. [How this meets the judging criteria](#11-how-this-meets-the-judging-criteria)
 12. [Run it yourself and deploy](#12-run-it-yourself-and-deploy)
@@ -128,10 +133,58 @@ AyuLink Radar has three detection layers and one action layer.
 | **A · Personal baseline drift** | Each person's resting heart rate is compared with their **own** 21-day median, not a population average. A drift flag needs 2+ days clearly above normal. | "Your heart has been beating faster than *your* normal for 2 days." Often an early sign of fever or infection. |
 | **B · Community cluster alert** | For each zone, a binomial test asks: are *more people drifting together* than chance allows? Bonferroni-corrected, with a region-wide guard so a heatwave is not mistaken for a local outbreak. | "Eight of 24 people in this hamlet are drifting at once. That is very unlikely to be chance." |
 | **C · Irregular-rhythm screening** | A trained model scores 30-beat windows of beat-to-beat intervals for irregular rhythm (atrial-fibrillation-like patterns). Runs in the browser and as a C header on the ESP32. | "This person's pulse looks irregular. Refer for an ECG." |
-| **D · Action** | A ranked **visit-first list**, a short **note in Telugu, Hindi or English**, a **field app** for the ASHA, and a printable **situation report** for the PHC. | "Visit these six houses first. Here is what to check." |
+| **D · AI forecast** | A trained model ranks every zone by its chance of reaching alert in the **next 3 days**, and names the factors behind each score. | "Rayakunta isn't on alert yet, but it will likely be by Thursday. Go today." |
+| **E · Action** | A ranked **visit-first list**, a short **note in Telugu, Hindi or English**, the **Ask AyuLink** assistant, a **field app** for the ASHA, and a printable **situation report** for the PHC. | "Visit these six houses first. Here is what to check." |
 
 **What it never does:** name a disease, diagnose, or suggest medicine. Every flag is labelled
 *screening flag, not a diagnosis*.
+
+### The AI inside
+
+AI is not a chatbot bolted on at the end. It runs at every step, and every piece is small enough to
+explain, test and run offline. Full page: [/ai](https://ayulink-radar.vercel.app/ai).
+
+| # | AI piece | Type | What it does for a person |
+|---|---|---|---|
+| 1 | Signal quality gate | Automated QC | Drops readings from a loose strap or heavy movement. Bad data never becomes an alert. |
+| 2 | Personal baseline | Per-person anomaly detection | Learns *your* normal resting heart rate; flags a steady drift from yourself. |
+| 3 | Cluster detection | Population anomaly detection | Many neighbours drifting together → watch / alert, with a heat/festival guard. |
+| 4 | **3-day outbreak forecaster** | **Trained ML model** | Predicts which zone will reach alert in the next 3 days, with reasons. |
+| 5 | Irregular pulse screen | Trained ML model | Beat-to-beat timing → irregular-rhythm screen. Python, TypeScript and ESP32 C, parity-tested. |
+| 6 | Visit-first ranking | Explainable triage scoring | One ordered list of who to see, each with plain-word reasons. |
+| 7 | **Ask AyuLink assistant** | Grounded conversational AI | "Brief me", "which zone is next?", "who first?" — text or voice, works offline. |
+| 8 | Health-worker notes | Multilingual generation | Telugu / Hindi / English notes, read aloud; LLM output validated or replaced. |
+
+**Ask AyuLink** reads a fact sheet built from the live console (zones, forecast, visit list) and
+answers with a deterministic rules engine that always works, even with no internet. If a Groq key is
+set, an LLM may rephrase the answer — but any reply that adds a number not in the facts, names a
+disease or mentions a medicine is thrown away. Medical questions ("does V-03-017 have dengue?") get a
+referral line, never an answer. Press **A** in the console.
+
+### One band, built around each person
+
+A grandmother living alone needs fall alerts and SOS location. An office worker wants a phone link and
+no GPS. A heart patient needs rhythm checks. The [band configurator](https://ayulink-radar.vercel.app/configure)
+lets you switch modules per wearer and shows exactly which AI features, battery load and privacy
+settings follow. It exports a JSON config and a firmware header (`ayulink_config.h`).
+
+| Module | Part | Status |
+|---|---|---|
+| Pulse (HR, beat timing, SpO₂) | MAX30102 | On prototype |
+| Skin temperature | LM35 | On prototype |
+| Motion / falls / rest detection | MPU6050 | On prototype |
+| LoRa radio (no internet needed) | SX1278 433 MHz | On prototype |
+| GPS (off by default; SOS-only or always) | u-blox NEO-6M | On prototype |
+| Screen | SH1106 OLED | On prototype |
+| ECG lead | AD8232 | **Planned** |
+| Skin response (GSR) for heat stress | Grove GSR | **Planned** |
+| Phone link | ESP32 BLE | **Planned** |
+| Battery gauge | MAX17048 | **Planned** |
+
+Ready-made profiles: village health watch · elder living alone · everyday wellness · heart follow-up ·
+outdoor worker heat · camp or mass event. `/api/ingest` already accepts the optional module fields
+(`spo2_pct`, `skin_temp_c`, `gsr_us`, `ecg_rr_ms`, `lat`/`lng`) and rejects location from a band that
+hasn't declared GPS. Wiring the header into band firmware is in progress.
 
 ---
 
@@ -163,7 +216,9 @@ flowchart LR
   end
   G -- "syncs when a link is up" --> I["/api/ingest<br/>packet validation"]
   I --> E["Detection engine<br/>1 · personal baseline drift<br/>2 · zone cluster test<br/>3 · rhythm screening"]
-  E --> C["Operator console<br/>map · surveillance grid · alerts"]
+  E --> AI["AI forecaster<br/>zone risk, next 3 days"]
+  AI --> C["Operator console<br/>map · surveillance grid · alerts"]
+  C --> A["Ask AyuLink<br/>grounded assistant · voice"]
   E --> F["Field app (ASHA)<br/>visit list · Telugu/Hindi note · offline form"]
   C --> R["Situation report<br/>for PHC / district"]
 ```
@@ -222,6 +277,29 @@ requirement, and the first thing a pilot must measure.
 | Isolated illness | Many unrelated sick people, no outbreak | 0.006 false alerts / zone / 30 d |
 | Heatwave | +3 bpm for everyone for 5 days | 93% detected, but **0.63 false alerts / zone / 30 d** — the region-wide guard needs work |
 | Noisy sensors | Heavy motion and contact artefact | **17% detected** — signal quality matters |
+
+### 3-day AI outbreak forecaster
+
+Logistic model, 9 zone-level features, trained on simulated seeds 1–100 and tested on **held-out
+seeds 101–200** (3 settings × 3 scenarios × wear 0.6 / 0.8 / 1.0; 502,279 zone-days).
+Question: *will this zone reach ALERT within 3 days?* Source:
+[`web/public/data/forecast_eval.json`](web/public/data/forecast_eval.json), produced by
+[`web/scripts/train-forecast.ts`](web/scripts/train-forecast.ts).
+
+| Held-out test | AI forecaster | Without AI |
+|---|---|---|
+| AUROC | **0.944** | 0.915 (cluster p-value alone) |
+| F1 | **0.472** | 0.322 ("zone on watch" rule) |
+| Recall | **0.622** | 0.329 |
+| Warned before the alert | **87%** of outbreak zones, median **2 days** early | — |
+| False warnings in calm runs | 0.123 per zone per 30 days | — |
+
+By setting: village AUROC 0.944, city 0.953, society 0.929.
+In plain words: about 4 in 10 high-risk warnings become an alert within 3 days; the rest cost one extra visit.
+
+**Weak spot, published:** under a heatwave (never seen in training) AUROC drops to
+0.822 with **2.031 false warnings per zone per 30 days**. Noisy sensors hold up (AUROC 0.951).
+The label is the engine's own alert, so this forecasts *escalation*, not disease.
 
 ### Irregular-rhythm screening model
 
@@ -320,6 +398,36 @@ AyuLink adds a signal to their existing routine; it does not need a new workforc
 
 > Pilot plan is **proposed, not started**. We have no partner yet.
 
+### Business model
+
+**Not another smartwatch — an early-warning service anyone can plug into.** Full page:
+[/business](https://ayulink-radar.vercel.app/business).
+
+| Who pays | Their problem | What they get | How they pay |
+|---|---|---|---|
+| **Public health (first customer)** — PHC, district, state | Outbreaks counted only after clinic visits | Zone alerts, 3-day forecast, ASHA visit lists | Annual district licence + hardware; CSR can fund bands |
+| Families with an elder at home | "Is Amma okay?" | Fall alert, SOS location, gentle drift nudges | Band + monthly subscription |
+| Employers (outdoor / shift workers) | Heat stress and illness spreading on sites | Site-level clusters, heat-strain signal | Per worker per month |
+| Hospitals | Patients vanish after discharge until they're back in emergency | Rhythm and drift follow-up from home | Per-patient monitoring fee |
+| Campuses, hostels, gated communities | One sick person becomes twenty | Block-level early warning on bands or smartwatches | Annual site licence |
+| Camps and mass events | Crowds, no network, no history | Rent-a-kit live in a day | Per-event rental |
+
+**Revenue:** recurring software subscription (core) · hardware near cost · bring-your-own-wearable
+(software only) · API licences for wearable brands and insurers. **Pricing is set after the pilot** —
+we'd rather publish real costs than guess.
+
+**Market (sourced):** 114.2 M wearables shipped in India in 2025 (IDC, Mar 2026) · 149 M people aged
+60+ in 2022, 347 M by 2050 (UNFPA & IIPS, India Ageing Report 2023) · 5.7% of people 60+ and 9.0% of
+elderly women live alone (LASI Wave 1) · 10.4 lakh ASHAs [ref 9].
+
+**Why it's hard to copy:** a population layer (not just a gadget) · works with no phone or internet ·
+modular per person · explainable, no-diagnosis AI that's easier to trust and approve.
+
+**Risks we're managing:** medical-device rules (stay screening-only; prepare for CDSCO before any
+clinical claim) · wear compliance (measure in pilot; detector tolerates 60%) · privacy (codes not
+names, GPS off by default, built with the DPDP Act, 2023 in mind) · heatwave false warnings (next model
+update) · simulation ≠ reality (the pilot).
+
 ---
 
 ## 10. Hardware
@@ -354,6 +462,11 @@ Built by our team and bench-tested. Three wristbands and one gateway exist.
 | | |
 |---|---|
 | ![Console, dark theme](docs/images/readme/console-dark.webp) | **Surveillance console** — radar map (street, terrain, satellite, light, dark), surveillance grid (every zone × every day), drift curve, LoRa network status, alerts with plain-language explanations, ranked visit list with case actions, Stress Lab, situation report. |
+| ![Ask AyuLink assistant answering a brief and a forecast question](docs/images/readme/assistant-light.webp) | **Ask AyuLink** — the operator just asks: "brief me", "which zone will flare up next?", "who first?". Grounded in console data, voice in and out, works offline, refuses diagnosis. |
+| ![AI forecast tab ranking zones by 3-day escalation risk](docs/images/readme/forecast-panel.webp) | **AI forecast** — every zone ranked by its chance of reaching alert in 3 days, with the reasons and the held-out accuracy right there. |
+| ![Band configurator](docs/images/readme/configure-light.webp) | **Band configurator** — pick a profile or switch modules per person; see the AI features, battery load, privacy and the over-the-air packet; export JSON or a firmware header. |
+| ![The AI inside page](docs/images/readme/ai-page-light.webp) | **The AI inside** — 8 AI pieces from band to visit list, the forecaster's model card and its weak spots. |
+| ![Business page](docs/images/readme/business-light.webp) | **Business** — market (sourced), six customer segments, revenue, competition, go-to-market and risks. |
 | ![Field app](docs/images/readme/field.webp) | **Field app** — what the ASHA sees: her list, a note in Telugu / Hindi / English, a 30-second visit form, offline save and sync. |
 | ![Impact page](docs/images/readme/impact.webp) | **Impact** — who uses it, where, when, and how it scales. |
 
@@ -363,10 +476,10 @@ Built by our team and bench-tested. Three wristbands and one gateway exist.
   features that drove the score, then reveal the true label.
 - **Hardware** — the real band and gateway, wiring, what runs where.
 - **Method** — every algorithm, the evaluation design and every limitation.
-- **API** — `/api/engine`, `/api/rhythm`, `/api/triage`, `/api/ingest`.
+- **API** — `/api/engine`, `/api/forecast`, `/api/assistant`, `/api/rhythm`, `/api/triage`, `/api/ingest`.
 - **Settings** — light / dark / system theme, high contrast, colour-blind-safe colours, reduce
   motion, base map, scroll-to-zoom, labels, default setting, playback speed, note language.
-- **Accessibility** — keyboard shortcuts (Space, ←/→, 1/2/3, C, S, R, ?), screen-reader labels,
+- **Accessibility** — keyboard shortcuts (Space, ←/→, 1/2/3, C, S, R, A assistant, F forecast, ?), screen-reader labels,
   read-aloud health-worker notes.
 
 ---
@@ -377,8 +490,9 @@ Built by our team and bench-tested. Three wristbands and one gateway exist.
 |---|---|
 | **Problem relevance (PS 01)** | Early detection → personal drift + cluster alert + rhythm screening. Accessible → offline LoRa, low-cost band, local-language notes, field app. |
 | **Innovation & originality** | Population-level detection from cheap wearables at hamlet scale; one engine for village / city / society; one model in three runtimes. See [§4](#4-what-is-new--and-what-is-not). |
-| **Technical implementation** | Real firmware + gateway, a trained model with record-level cross-validation, a statistical engine, 4 APIs, 23 tests, CI, reproducible evaluation. |
-| **AI / intelligence** | Trained rhythm classifier (AUROC 0.989 on held-out records); statistical cluster detection; fact-locked LLM notes with automatic fallback. |
+| **Technical implementation** | Real firmware + gateway, two trained models with held-out evaluation, a statistical engine, a modular band configurator, 6 APIs, 47 tests, CI, reproducible evaluation. |
+| **AI / intelligence** | 8 AI pieces end to end: trained **3-day outbreak forecaster** (AUROC 0.944, beats the non-AI baseline), trained rhythm classifier (AUROC 0.989 on held-out records), statistical cluster detection, grounded **Ask AyuLink** assistant (text + voice, offline), fact-locked multilingual notes. See [The AI inside](#the-ai-inside). |
+| **Business viability** | Six customer segments, recurring revenue, sourced market size, GTM from one PHC pilot, risks and mitigations. See [Business model](#business-model). |
 | **Real-world impact** | ASHA-first workflow, situation report for PHCs, seasonal and mass-gathering use cases, India-scale rollout path. |
 | **Feasibility** | [§7](#7-feasibility): what is built, what is pending, what it costs, what it needs (≥ 60% daily wear). |
 | **Scalability** | [§9](#9-scalability-from-one-phc-to-all-of-india): stateless engine, offline-first, hardware-agnostic. |
@@ -403,10 +517,11 @@ git clone https://github.com/siddharthathula/ayulink-radar.git
 cd ayulink-radar/web
 npm install
 npm run dev          # http://localhost:3000
-npm test             # 23 tests: engine, rhythm parity, API
+npm test             # 47 tests: engine, forecaster, assistant, configurator, rhythm parity, API
 npm run lint         # 0 errors
 npm run build        # production build
-npx tsx scripts/evaluate.ts   # regenerate every number in §6 (takes a few minutes)
+npx tsx scripts/evaluate.ts        # regenerate the detection numbers in §6 (a few minutes)
+npx tsx scripts/train-forecast.ts  # retrain + re-evaluate the 3-day forecaster (~6 minutes)
 ```
 
 **Try the API**
@@ -415,6 +530,13 @@ npx tsx scripts/evaluate.ts   # regenerate every number in §6 (takes a few minu
 curl -s -X POST https://ayulink-radar.vercel.app/api/engine \
   -H 'Content-Type: application/json' \
   -d '{"mode":"village","scenario":"cluster","seed":2026,"wearRate":0.8}'
+```
+
+```bash
+# AI: which zone is likely to reach alert in the next 3 days?
+curl -s -X POST https://ayulink-radar.vercel.app/api/forecast \
+  -H 'Content-Type: application/json' \
+  -d '{"mode":"village","scenario":"cluster","seed":2026,"day":8}'
 ```
 
 **Rhythm model** (Python 3.10+):
@@ -429,8 +551,10 @@ python download_afdb.py && python train_rhythm.py && python export_model.py
 ```
 web/        Next.js app: console, field app, rhythm lab, impact, method, API routes
   lib/engine/   detection engine (simulate, baseline, cluster, quality, rhythm, queue)
+  lib/ai/       forecaster model loader, Ask AyuLink assistant (rules + LLM guard)
+  lib/config/   modular band catalog, profiles, AI-feature map, config export
   lib/api/      stateless API handlers
-  scripts/      evaluate.ts — produces web/public/data/eval.json
+  scripts/      evaluate.ts, train-forecast.ts — produce web/public/data/*.json
   tests/        engine, rhythm parity and API tests
 ml/         rhythm model training, features, export (Python)
 firmware/   ESP32 band, gateway, dispenser firmware; rhythm model as C header + demo sketch
@@ -449,6 +573,9 @@ Sentinel-2 cloudless (EOX). Live weather: Open-Meteo. Full list:
 **Limitations**
 
 - Population data in the demo is **simulated**. Three physical prototype bands exist.
+- The **AI forecaster** is trained and tested on simulated data, forecasts escalation of the engine's
+  own alert (not disease), and gives more false warnings in heatwaves.
+- **ECG, GSR, phone link and battery gauge** modules are designed, not built. The configurator marks them *Planned*.
 - Resting-heart-rate drift is **not disease-specific**. An alert means *possible febrile-illness
   cluster — send a health worker to check*. It never names a disease.
 - The rhythm model is trained on **ECG-derived** intervals; the band uses an **optical** sensor.
@@ -471,6 +598,9 @@ Sentinel-2 cloudless (EOX). Live weather: Open-Meteo. Full list:
 ## 14. Roadmap
 
 - **Pilot** with one PHC: wear compliance, battery life, alerts vs the PHC fever register.
+- **Heat-aware forecaster** — add temperature and weather features so heatwaves stop causing false warnings.
+- **Build the planned modules** — ECG (AD8232), GSR, BLE phone link, battery gauge — and the v3 packet.
+- **Family app** — elder-alone profile alerts the family's phone, not just the console.
 - **Skin temperature** (the band already has an LM35) as a second signal alongside resting HR.
 - **On-band rhythm validation** with paired ECG recordings.
 - **Tremor screening** — the band firmware already includes a tremor detector.

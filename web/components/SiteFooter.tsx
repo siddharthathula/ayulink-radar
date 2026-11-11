@@ -6,6 +6,9 @@ const COLUMNS = [
     title: "Product",
     links: [
       { href: "/demo", label: "Surveillance console" },
+      { href: "/ai", label: "The AI inside" },
+      { href: "/configure", label: "Configure a band" },
+      { href: "/business", label: "Business model" },
       { href: "/field", label: "Health-worker field app" },
       { href: "/impact", label: "Who, where, when" },
       { href: "/rhythm", label: "Rhythm Lab" },

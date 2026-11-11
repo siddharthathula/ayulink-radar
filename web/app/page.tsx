@@ -3,6 +3,7 @@ import {
   Activity,
   ArrowRight,
   BookOpen,
+  BrainCircuit,
   CircuitBoard,
   Clock3,
   HeartPulse,
@@ -18,6 +19,8 @@ import { HeroPreview } from "@/components/home/HeroPreview";
 import { EvidenceBadge } from "@/components/EvidenceBadge";
 import { headline, formatNum, rhythmModelData, TEAM_NAME, GITHUB_URL } from "@/lib/results";
 import { PRESETS } from "@/lib/engine/presets";
+import { FORECAST_EVAL } from "@/lib/ai/forecastModel";
+import { PROFILES } from "@/lib/config/modules";
 
 
 const REFERENCES = [
@@ -54,13 +57,13 @@ const STEPS = [
   },
   {
     Icon: Users,
-    title: "Detect the cluster",
-    text: "When several people in one zone drift together, a binomial test raises a watch or alert. A region-wide guard blocks heat and festival false alarms.",
+    title: "Detect and forecast",
+    text: "When several neighbours drift together, the zone goes on watch or alert. A trained AI model ranks which zone is likely to tip over in the next 3 days.",
   },
   {
     Icon: Send,
     title: "Send a health worker",
-    text: "The output is a ranked visit-first list and a short note in Telugu, Hindi or English. A screening flag, not a diagnosis.",
+    text: "A ranked visit list, a note in Telugu, Hindi or English, and an assistant you can just ask “who first?”. A screening flag, not a diagnosis.",
   },
 ];
 
@@ -95,7 +98,6 @@ export default function HomePage() {
   const lead = headline?.medianLeadDays ?? null;
   const leadLow = headline?.leadCI?.[0] ?? null;
   const leadHigh = headline?.leadCI?.[1] ?? null;
-  const detection = headline?.detectionRate ?? null;
   const auroc = rhythmModelData.metrics.mean.auroc;
 
   return (
@@ -116,23 +118,26 @@ export default function HomePage() {
               <HeartPulse size={13} aria-hidden="true" /> {TEAM_NAME} · INNOVEX 2026 · PS 01 AI-Powered Healthcare
             </p>
             <h1 className="mt-5 text-[38px] leading-[1.05] text-white sm:text-[52px] xl:text-[64px]">
-              See an outbreak
+              It knows your normal.
               <br />
-              <span className="text-onbrand">before the clinic does.</span>
+              <span className="text-onbrand">And when your street isn&apos;t.</span>
             </h1>
-            <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-onbrand">
-              Low-cost bands learn each person&apos;s normal resting heart rate. When several people
-              in one hamlet drift up together, the console raises a cluster alert and hands the
-              health worker a ranked visit list — days before clinic reports. Bands work offline over
-              LoRa; only the console needs internet.
+            <p className="mt-5 max-w-[60ch] text-[17px] leading-relaxed text-onbrand">
+              A low-cost band — or the smartwatch you already wear — learns each person&apos;s own resting
+              heart rate. AI notices quiet shifts, spots when many neighbours shift together, predicts which
+              area may flare up next, and tells a health worker, a family or a clinic who to check first.
+              Same system in a village with no internet and in a Hyderabad high-rise.
             </p>
             <div className="mt-7 flex flex-col gap-2.5 sm:flex-row">
               <Link href="/demo?tour=1" className="btn h-12 border-white bg-white px-5 text-[15px] font-bold text-[#1b5e3a] hover:bg-[#edf7f1]">
                 Run the 30-second demo
                 <ArrowRight size={17} aria-hidden="true" />
               </Link>
-              <Link href="/field" className="btn h-12 border-white/30 bg-white/10 px-5 text-[15px] text-white shadow-none hover:bg-white/20 hover:border-white/50">
-                See the field app
+              <Link href="/configure" className="btn h-12 border-white/30 bg-white/10 px-5 text-[15px] text-white shadow-none hover:bg-white/20 hover:border-white/50">
+                Build a band for someone
+              </Link>
+              <Link href="/ai" className="btn h-12 border-white/30 bg-white/10 px-5 text-[15px] text-white shadow-none hover:bg-white/20 hover:border-white/50">
+                <BrainCircuit size={16} aria-hidden="true" /> The AI inside
               </Link>
             </div>
             <dl className="mt-9 grid max-w-xl grid-cols-3 gap-px overflow-hidden rounded-2xl bg-white/15 ring-1 ring-white/15">
@@ -151,11 +156,13 @@ export default function HomePage() {
                 <dd className="text-[10.5px] text-onbrand/80">public ECG · per-record CV</dd>
               </div>
               <div className="bg-brandbar/80 p-4">
-                <dt className="text-[11.5px] leading-snug text-onbrand">Clusters detected</dt>
+                <dt className="text-[11.5px] leading-snug text-onbrand">AI warned early</dt>
                 <dd className="mono mt-1 text-[26px] font-semibold">
-                  {detection === null ? "TBD" : `${(detection * 100).toFixed(1)}%`}
+                  {Math.round(FORECAST_EVAL.earlyWarning.warnedShare * 100)}%
                 </dd>
-                <dd className="text-[10.5px] text-onbrand/80">village · 80% wear · simulated</dd>
+                <dd className="text-[10.5px] text-onbrand/80">
+                  of outbreak zones · ~{FORECAST_EVAL.earlyWarning.medianDaysEarlier} d before alert · simulated
+                </dd>
               </div>
             </dl>
           </div>
@@ -219,12 +226,42 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="shell py-12 lg:py-16">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="mono text-[11px] uppercase tracking-[0.16em] text-brand">For everyone, anywhere</p>
+            <h2 className="mt-2 max-w-2xl text-2xl sm:text-3xl">One band, built around each person.</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted">
+              Modules snap on or off per wearer: GPS only for those who need finding, ECG only for heart
+              patients, a phone link for city users. The AI adapts to whatever the band carries.
+            </p>
+          </div>
+          <Link href="/configure" className="btn min-h-10 px-3 text-sm">
+            Open the configurator <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </div>
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {PROFILES.map((p) => (
+            <Link
+              key={p.id}
+              href={`/configure?p=${p.id}`}
+              className="card group flex flex-col p-4 no-underline transition-colors hover:border-brand/40"
+            >
+              <h3 className="text-base text-text group-hover:text-brand">{p.name}</h3>
+              <p className="mt-1 text-sm text-text-2">{p.who}</p>
+              <p className="mt-0.5 text-xs text-muted">{p.where}</p>
+              <p className="mono mt-3 text-[11px] text-muted">{p.config.modules.join(" · ")}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section id="how" className="shell scroll-mt-20 py-12 lg:py-16">
         <p className="mono text-[11px] uppercase tracking-[0.16em] text-brand">
           How it works
         </p>
         <h2 className="mt-2 max-w-2xl text-2xl sm:text-3xl">
-          One engine, four steps, no diagnosis.
+          Four steps. AI at every one. No diagnosis.
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(({ Icon, title, text }, index) => (

@@ -16,7 +16,7 @@ import type { Lang, Mode } from "@/lib/engine/types";
 import { useSettings, type Basemap, type Settings, type ThemePref } from "@/lib/ui/settings";
 import { BASEMAP_OPTIONS } from "@/lib/ui/basemaps";
 
-function Segmented<T extends string | number>({
+export function Segmented<T extends string | number>({
   value,
   options,
   onChange,
@@ -44,7 +44,7 @@ function Segmented<T extends string | number>({
   );
 }
 
-function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <button
       type="button"

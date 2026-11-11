@@ -17,12 +17,13 @@ function GithubMark({ size = 18 }: { size?: number }) {
 
 const NAV = [
   { href: "/demo", label: "Console" },
+  { href: "/ai", label: "AI" },
+  { href: "/configure", label: "Configure" },
   { href: "/field", label: "Field app" },
   { href: "/impact", label: "Impact" },
-  { href: "/rhythm", label: "Rhythm Lab" },
+  { href: "/business", label: "Business" },
   { href: "/hardware", label: "Hardware" },
   { href: "/method", label: "Method" },
-  { href: "/api-docs", label: "API" },
 ];
 
 export function BrandMark({ size = 30 }: { size?: number }) {

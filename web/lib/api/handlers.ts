@@ -3,6 +3,8 @@
  * No data is stored. Kept separate from route files so tests can call them.
  */
 import modelJson from "@/public/model/rhythm_model.json";
+import forecastJson from "@/public/model/forecast_model.json";
+import { riskDrivers, zoneForecasts, type ForecastModel } from "@/lib/engine/forecast";
 import { simulate } from "@/lib/engine/simulate";
 import { DEFAULT_CONFIG, MODES, SCENARIOS, STRESSES } from "@/lib/engine/presets";
 import { rhythmProbability, RHYTHM_WINDOW, type RhythmModel } from "@/lib/engine/rhythm";
@@ -10,8 +12,13 @@ import { rrWindowQuality } from "@/lib/engine/signalQuality";
 import { templateFor, validateTriageText, type TriageFacts } from "@/lib/triage/templates";
 import type { Lang, Mode, Scenario, Stress, TriageKind } from "@/lib/engine/types";
 import { isRecord } from "./http";
+import { MODULES } from "@/lib/config/modules";
+
+const MODULE_IDS = new Set<string>(MODULES.map((m) => m.id));
+import { answerQuestion, validateAssistantText, type ConsoleSnapshot } from "@/lib/ai/assistant";
 
 const model = modelJson as unknown as RhythmModel;
+const forecastModel = forecastJson as ForecastModel;
 
 export type Outcome = { status: number; body: unknown };
 const fail = (message: string, status = 400): Outcome => ({ status, body: { error: message } });
@@ -201,6 +208,14 @@ export interface BandPacket {
   fall: boolean;
   seizure: boolean;
   batt_pct: number;
+  /** Optional, sent only by bands that carry the matching module. */
+  modules?: string[];
+  spo2_pct?: number;
+  skin_temp_c?: number;
+  gsr_us?: number;
+  ecg_rr_ms?: number[];
+  lat?: number;
+  lng?: number;
 }
 
 /** Validate one gateway packet. Returns a list of problems (empty = valid). */
@@ -224,6 +239,37 @@ export function validatePacket(value: unknown): string[] {
     if (typeof value[key] !== "boolean") problems.push(`${key} must be true or false`);
   }
   if (typeof value.batt_pct !== "number" || value.batt_pct < 0 || value.batt_pct > 100) problems.push("batt_pct must be 0–100");
+
+  // Optional module fields (modular band). Each must be in a plausible range when present.
+  const optional: Array<[string, number, number]> = [
+    ["spo2_pct", 50, 100],
+    ["skin_temp_c", 20, 45],
+    ["gsr_us", 0, 100],
+    ["lat", -90, 90],
+    ["lng", -180, 180],
+  ];
+  for (const [key, low, high] of optional) {
+    const v = value[key];
+    if (v !== undefined && (typeof v !== "number" || !Number.isFinite(v) || v < low || v > high)) {
+      problems.push(`${key} must be a number ${low}–${high}`);
+    }
+  }
+  if (value.ecg_rr_ms !== undefined) {
+    if (!Array.isArray(value.ecg_rr_ms) || value.ecg_rr_ms.length > 300 || value.ecg_rr_ms.some((v) => typeof v !== "number" || v < 200 || v > 3000)) {
+      problems.push("ecg_rr_ms must be up to 300 intervals of 200–3000 ms");
+    }
+  }
+  if (value.modules !== undefined) {
+    if (!Array.isArray(value.modules) || value.modules.some((m) => typeof m !== "string" || !MODULE_IDS.has(m))) {
+      problems.push(`modules must list known module ids (${[...MODULE_IDS].join(", ")})`);
+    } else {
+      const declared = new Set(value.modules as string[]);
+      if ((value.lat !== undefined || value.lng !== undefined) && !declared.has("gps")) problems.push("lat/lng sent but the gps module is not declared");
+      if (value.ecg_rr_ms !== undefined && !declared.has("ecg")) problems.push("ecg_rr_ms sent but the ecg module is not declared");
+      if (value.gsr_us !== undefined && !declared.has("gsr")) problems.push("gsr_us sent but the gsr module is not declared");
+    }
+  }
+  if ((value.lat === undefined) !== (value.lng === undefined)) problems.push("send lat and lng together");
   return problems;
 }
 
@@ -251,6 +297,109 @@ export function runIngest(input: unknown): Outcome {
       results,
       stored: false,
       note: "Validation endpoint. This public demo does not store packets.",
+    },
+  };
+}
+
+/* ---------------- /api/assistant ---------------- */
+
+const ASSISTANT_SYSTEM = [
+  "You are Ask AyuLink, an assistant for a public-health operator watching a wearable early-warning console.",
+  "Answer ONLY from the JSON fact sheet and the draft answer you are given. Never invent numbers, names, places or people.",
+  "Every number you write must already appear in the facts or draft.",
+  "Never diagnose, never name a disease, never mention medicines or doses. People are codes, never names.",
+  "Be warm, plain and short: at most 90 words, no markdown headings. Spoken-English style a busy health worker understands.",
+  "If the draft already answers well, lightly rephrase it. Keep any 'screening flag, not a diagnosis' sentence.",
+].join(" ");
+
+function parseSnapshot(value: unknown): ConsoleSnapshot | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.day !== "number" || !Array.isArray(value.zones) || !Array.isArray(value.visitList)) return null;
+  if (value.zones.length > 40 || value.visitList.length > 30) return null;
+  if (!isRecord(value.counts)) return null;
+  return value as unknown as ConsoleSnapshot;
+}
+
+export async function runAssistant(input: unknown, env: { key?: string; model?: string }): Promise<Outcome> {
+  if (!isRecord(input)) return fail("Body must be a JSON object.");
+  const question = input.question;
+  if (typeof question !== "string" || question.trim().length === 0 || question.length > 300) {
+    return fail("question must be 1–300 characters.");
+  }
+  const snapshot = parseSnapshot(input.snapshot);
+  if (!snapshot) return fail("snapshot must be the console fact sheet (day, counts, zones, visitList).");
+  const focus = typeof input.focusZoneId === "string" ? input.focusZoneId : null;
+  const draft = answerQuestion(question, snapshot, focus);
+  if (!env.key || draft.intent === "medical" || draft.intent === "unknown") {
+    return { status: 200, body: draft };
+  }
+  const facts = JSON.stringify(snapshot);
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.key}` },
+      body: JSON.stringify({
+        model: env.model ?? "llama-3.1-8b-instant",
+        temperature: 0.2,
+        max_tokens: 260,
+        messages: [
+          { role: "system", content: ASSISTANT_SYSTEM },
+          { role: "user", content: JSON.stringify({ question, facts: snapshot, draft: draft.text }) },
+        ],
+      }),
+      signal: AbortSignal.timeout(7000),
+    });
+    if (!response.ok) throw new Error("llm status");
+    const data = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    const text = data.choices?.[0]?.message?.content?.trim() ?? "";
+    if (validateAssistantText(text, facts + draft.text)) {
+      return { status: 200, body: { ...draft, text, source: "llm" } };
+    }
+  } catch {
+    // fall back to the rules answer
+  }
+  return { status: 200, body: draft };
+}
+
+/* ---------------- /api/forecast ---------------- */
+
+export function runForecast(input: unknown): Outcome {
+  if (!isRecord(input)) return fail("Body must be a JSON object.");
+  const { day: rawDay, ...config } = input;
+  const day = rawDay ?? 7;
+  if (typeof day !== "number" || !Number.isInteger(day) || day < 1 || day > 32) {
+    return fail("day must be an integer 1–32 (console day).");
+  }
+  const engine = runEngine(config);
+  if (engine.status !== 200) return engine;
+  const mode = (config.mode ?? "village") as Mode;
+  const result = simulate({
+    ...DEFAULT_CONFIG,
+    mode,
+    scenario: (config.scenario ?? "cluster") as Scenario,
+    stress: (config.stress ?? "none") as Stress,
+    seed: (config.seed as number | undefined) ?? DEFAULT_CONFIG.seed,
+    wearRate: (config.wearRate as number | undefined) ?? DEFAULT_CONFIG.wearRate,
+    noiseLevel: (config.noiseLevel as number | undefined) ?? DEFAULT_CONFIG.noiseLevel,
+  });
+  const engineDay = day + 27;
+  const forecasts = zoneForecasts(result, engineDay, forecastModel);
+  return {
+    status: 200,
+    body: {
+      day,
+      horizonDays: forecastModel.horizonDays,
+      threshold: forecastModel.threshold,
+      model: forecastModel.version,
+      zones: forecasts.map((f) => ({
+        zoneId: f.zoneId,
+        name: result.zones.find((z) => z.id === f.zoneId)?.name ?? f.zoneId,
+        level: f.level,
+        probability: Number(f.probability.toFixed(3)),
+        risk: f.risk,
+        topFactors: riskDrivers(f).slice(0, 3).map((c) => c.label),
+      })),
+      note: "Simulated population. Forecasts escalation of the engine's own alert, not disease.",
     },
   };
 }

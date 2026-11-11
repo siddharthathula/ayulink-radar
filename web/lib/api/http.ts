@@ -16,10 +16,10 @@ export function bad(message: string, status = 400) {
 }
 
 /** Read a JSON body with a hard size cap. Returns an error Response on failure. */
-export async function readJson(request: Request): Promise<unknown | Response> {
+export async function readJson(request: Request, maxBytes = MAX_BODY_BYTES): Promise<unknown | Response> {
   const text = await request.text();
-  if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
-    return bad(`Body larger than ${MAX_BODY_BYTES} bytes.`, 413);
+  if (new TextEncoder().encode(text).length > maxBytes) {
+    return bad(`Body larger than ${maxBytes} bytes.`, 413);
   }
   try {
     return JSON.parse(text);

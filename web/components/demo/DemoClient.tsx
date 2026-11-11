@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Activity,
+  BrainCircuit,
   ClipboardList,
   Clock,
   FileText,
@@ -51,8 +52,13 @@ import { dailySeries, FIRST_DAY } from "@/lib/ui/ops";
 import { useCaseLog } from "@/lib/ui/hooks";
 import { useSettings } from "@/lib/ui/settings";
 import { HelpCard } from "@/components/console/HelpCard";
+import { ForecastPanel } from "@/components/console/ForecastPanel";
+import { Assistant } from "@/components/console/Assistant";
+import { buildSnapshot, type AssistantAction } from "@/lib/ai/assistant";
+import { buildForecastIndex, zoneForecasts } from "@/lib/engine/forecast";
+import { FORECAST_MODEL } from "@/lib/ai/forecastModel";
 
-type Tab = "alerts" | "queue" | "zone" | "stress" | "assumptions";
+type Tab = "alerts" | "forecast" | "queue" | "zone" | "stress" | "assumptions";
 
 const TABS: Array<{
   id: Tab;
@@ -60,6 +66,7 @@ const TABS: Array<{
   Icon: typeof TriangleAlert;
 }> = [
   { id: "alerts", label: "Alerts", Icon: TriangleAlert },
+  { id: "forecast", label: "AI forecast", Icon: BrainCircuit },
   { id: "queue", label: "Visit list", Icon: ListOrdered },
   { id: "zone", label: "Zones", Icon: MapPinned },
   { id: "stress", label: "Stress Lab", Icon: SlidersHorizontal },
@@ -88,6 +95,7 @@ export function DemoClient() {
   const [tourStep, setTourStep] = useState(tour ? 1 : 0);
   const [showSitrep, setShowSitrep] = useState(false);
   const [showKeys, setShowKeys] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   const result = useMemo(
     () =>
@@ -135,6 +143,36 @@ export function DemoClient() {
   const { log: caseLog, update: updateCase } = useCaseLog(
     `ayulink-cases:${mode}:${scenario}:${seed}:${stress}:${wearRate}`,
   );
+
+  const forecastIndex = useMemo(() => buildForecastIndex(result), [result]);
+  const forecasts = useMemo(() => zoneForecasts(result, day, FORECAST_MODEL, forecastIndex), [result, day, forecastIndex]);
+  const snapshot = useMemo(
+    () =>
+      buildSnapshot({
+        result,
+        day,
+        queue: queueAll,
+        forecasts,
+        wornToday,
+        driftingToday: flaggedToday,
+        rhythmFlags: rhythmCount,
+        visited: Object.values(caseLog).filter((c) => c.status === "visited" || c.status === "referred").length,
+        place: PRESETS[mode].label,
+      }),
+    [result, day, queueAll, forecasts, wornToday, flaggedToday, rhythmCount, caseLog, mode],
+  );
+
+  function runAssistantAction(action: AssistantAction) {
+    if (action.kind === "zone") {
+      setSelectedZone(action.id);
+      setTab("zone");
+    } else if (action.kind === "person") {
+      setTab("queue");
+      setSelectedPerson(action.id);
+    } else if (action.kind === "tab") {
+      setTab(action.id as Tab);
+    }
+  }
 
   // Playback.
   useEffect(() => {
@@ -250,10 +288,15 @@ export function DemoClient() {
       else if (event.key.toLowerCase() === "s") changeScenario("spread");
       else if (event.key.toLowerCase() === "r") setShowSitrep(true);
       else if (event.key === "?") setShowKeys(true);
+      else if (event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        setAssistantOpen(true);
+      } else if (event.key.toLowerCase() === "f") setTab("forecast");
       else if (event.key === "Escape") {
         setSelectedPerson(null);
         setShowSitrep(false);
         setShowKeys(false);
+        setAssistantOpen(false);
       }
     }
     window.addEventListener("keydown", onKey);
@@ -437,6 +480,16 @@ export function DemoClient() {
               selectedZoneId={selectedZone}
               onClearZone={() => setSelectedZone(null)}
               scenarioHint={scenario === "calm" && day <= 28}
+            />
+          ) : null}
+        </div>
+        <div role="tabpanel" hidden={tab !== "forecast"}>
+          {tab === "forecast" ? (
+            <ForecastPanel
+              result={result}
+              day={day}
+              selectedZoneId={selectedZone}
+              onPickZone={(zoneId) => setSelectedZone(zoneId)}
             />
           ) : null}
         </div>
@@ -662,6 +715,16 @@ export function DemoClient() {
       ) : null}
 
       {showKeys ? <ShortcutsDialog onClose={() => setShowKeys(false)} /> : null}
+
+      {!tour || tourStep === 0 ? (
+        <Assistant
+          open={assistantOpen}
+          onOpenChange={setAssistantOpen}
+          snapshot={snapshot}
+          focusZoneId={selectedZone}
+          onAction={runAssistantAction}
+        />
+      ) : null}
 
       {tour ? <TourOverlay step={tourStep} onNext={advanceTour} onSkip={skipTour} /> : null}
     </div>

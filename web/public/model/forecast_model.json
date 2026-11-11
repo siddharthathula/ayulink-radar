@@ -1,0 +1,51 @@
+{
+  "version": "forecast-v1",
+  "horizonDays": 3,
+  "features": [
+    "flagRate",
+    "flagRise",
+    "windowRate",
+    "excess",
+    "evidence",
+    "watch",
+    "neighborLevel",
+    "neighborRate",
+    "regionWide"
+  ],
+  "mean": [
+    0.017753,
+    0.002182,
+    0.035092,
+    0.325935,
+    0.054532,
+    0.034176,
+    0.096324,
+    0.041694,
+    0.036059
+  ],
+  "std": [
+    0.042182,
+    0.030742,
+    0.06554,
+    1.69987,
+    0.138455,
+    0.18168,
+    0.271832,
+    0.068454,
+    0.186438
+  ],
+  "weights": [
+    0.446494,
+    0.10823,
+    -0.226804,
+    2.423959,
+    -0.892454,
+    -0.06935,
+    0.496496,
+    0.127947,
+    -0.587273
+  ],
+  "bias": -1.928878,
+  "threshold": 0.87,
+  "trainedOn": "simulated seeds 1-100; 3 modes x 3 scenarios x wear 0.6/0.8/1.0"
+}

@@ -6,7 +6,7 @@ import { LIVE_URL } from "@/lib/results";
 
 export const metadata: Metadata = { title: "API" };
 
-const ORDER = ["engine", "rhythm", "triage", "ingest"] as const;
+const ORDER = ["engine", "forecast", "assistant", "rhythm", "triage", "ingest"] as const;
 
 export default function ApiDocsPage() {
   return (
@@ -16,7 +16,7 @@ export default function ApiDocsPage() {
           <p className="eyebrow text-brand">Backend</p>
           <h1 className="mt-2 text-3xl">API reference</h1>
           <p className="mt-3 text-sm text-muted">
-            Four stateless endpoints. Same engine code as the browser. No database, no login, nothing
+            Six stateless endpoints. Same engine code as the browser. No database, no login, nothing
             stored.
           </p>
           <nav className="mt-6 space-y-1" aria-label="Endpoints">
@@ -29,7 +29,7 @@ export default function ApiDocsPage() {
           </nav>
           <div className="mt-6 space-y-3 rounded-xl border border-border bg-surface p-4 text-[13px] text-text-2">
             <p className="flex items-start gap-2"><Server size={15} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />Runs as serverless functions next to the web app.</p>
-            <p className="flex items-start gap-2"><ShieldCheck size={15} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />Bodies capped at 10 KB. Strict input checks. Errors are plain 400s.</p>
+            <p className="flex items-start gap-2"><ShieldCheck size={15} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />Bodies capped at 10 KB (assistant: 32 KB). Strict input checks. Errors are plain 400s.</p>
             <p className="flex items-start gap-2"><Braces size={15} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />GET on any endpoint returns its description and an example body.</p>
           </div>
         </aside>
