@@ -162,5 +162,5 @@
   },
   "trainedOn": "MIT-BIH Atrial Fibrillation Database (afdb), 25 records, 30-RR windows, GroupKFold(5) by record",
   "license": "Model trained on ODC-BY 1.0 data. Cite Moody & Mark 1983 and PhysioNet. Intended for screening research, not diagnosis.",
-  "generatedAt": "2026-11-11T09:23:15+00:00"
+  "generatedAt": "2026-11-11T09:31:50+00:00"
 }

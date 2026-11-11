@@ -44,6 +44,14 @@ def evenly_spaced(values: list[int], count: int) -> list[int]:
     return [values[int(round(i * step))] for i in range(count)]
 
 
+def rr_quality_ok(rr: list[int]) -> bool:
+    """Mirror of web/lib/engine/signalQuality.ts rrWindowQuality."""
+    if len(rr) < 30:
+        return False
+    bad = sum(1 for value in rr if value < 300 or value > 2000)
+    return bad / len(rr) <= 0.2
+
+
 def prob_from_state(features: list[float], state: dict) -> float:
     total = state["intercept"]
     for value, mean, scale, coef in zip(
@@ -278,10 +286,19 @@ def write_samples_and_parity(
 
     for fold in range(1, N_FOLDS + 1):
         test_idx = fold_indices[fold]
-        af = [i for i in test_idx if y[i] == 1]
-        normal = [i for i in test_idx if y[i] == 0]
+        af = [
+            i for i in test_idx if y[i] == 1 and rr_quality_ok(rr_windows[i].tolist())
+        ]
+        normal = [
+            i for i in test_idx if y[i] == 0 and rr_quality_ok(rr_windows[i].tolist())
+        ]
         picked_af = evenly_spaced(af, 4)
         picked_normal = evenly_spaced(normal, 4)
+        if len(picked_af) < 4 or len(picked_normal) < 4:
+            raise SystemExit(
+                f"fold {fold}: not enough quality-passing samples "
+                f"(AF {len(af)}, normal {len(normal)})"
+            )
         af_samples.extend(picked_af)
         normal_samples.extend(picked_normal)
         parity_idx.extend(picked_af[:2])
