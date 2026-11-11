@@ -11,3 +11,7 @@ echo "building host test runner..."
 g++ -std=c++14 -O2 -Wall -Wextra -I../common test_firmware.cpp -lcrypto -o "$OUT"
 echo "running..."
 "$OUT"
+
+echo "building LoRa link test..."
+g++ -std=c++14 -O2 -Wall -Wextra -I../common test_lora_link.cpp -o "${OUT}_lora"
+"${OUT}_lora"

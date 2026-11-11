@@ -138,7 +138,8 @@ Cross the wires: **TX to RX.** GPS supplies the data, so GPS TX goes to ESP32 RX
 | GND | GND | — | |
 | — | ANT | — | 433 MHz, **fit before power** |
 
-Operating mode is **433 MHz SF10, asynchronous**. The antenna is not optional —
+Operating mode is **433.5 MHz, SF9, BW 125 kHz, CR 4/5, 10 dBm, sync word 0xA5, asynchronous TX**
+(see `common/ayulink_lora.h` for the Indian 433 MHz compliance notes). The antenna is not optional —
 transmitting into a terminated 50 Ω load without one damages the PA.
 
 ### 4.2 I²C devices
@@ -352,7 +353,7 @@ A healthy boot looks like this:
 [PPG] part id 0x15
 [MAX30102] Init... OK (Fast 400kHz, Optical Lead-Off Active)
 [MPU6050] Init... OK (Fall/Tremor Engine Online)
-[LoRa] Init... OK — 433MHz SF10 (Asynchronous Mode)
+[LORA] SX1278 OK 433.5 MHz SF9 BW125k CR4/5 10 dBm sync 0xA5 airtime 247ms/frame
 [GPS] Init NEO-6M UART2... OK (RX:16, TX:17, 9600 baud)
 [SYSTEM READY] AyuLink Edge Node active.
 ```

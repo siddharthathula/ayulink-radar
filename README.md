@@ -212,7 +212,7 @@ We did not invent wearable illness detection. We are honest about that.
 ```mermaid
 flowchart LR
   subgraph Village["Village — no internet needed"]
-    B1["AyuLink band<br/>ESP32 · MAX30102 PPG · MPU6050 · LM35<br/>on-band fall / tremor / rhythm"] -- "LoRa 433 MHz" --> G["LoRa gateway<br/>ESP32 + SX1278<br/>store-and-forward buffer"]
+    B1["AyuLink band<br/>ESP32 · MAX30102 PPG · MPU6050 · LM35<br/>on-band fall / tremor / rhythm"] -- "LoRa 433.5 MHz uplink<br/>(+ ESP-NOW short range)" --> G["LoRa gateway<br/>ESP32 + SX1278<br/>store-and-forward buffer"]
   end
   G -- "syncs when a link is up" --> I["/api/ingest<br/>packet validation"]
   I --> E["Detection engine<br/>1 · personal baseline drift<br/>2 · zone cluster test<br/>3 · rhythm screening"]
@@ -352,7 +352,7 @@ The band uses an optical pulse sensor, not ECG. **On-band validation is pending.
 
 | Dimension | Status | Detail |
 |---|---|---|
-| **Technical** | **Built and tested** | Band firmware (ESP32, MAX30102, MPU6050, LM35, SX1278, NEO-6M), LoRa gateway, detection engine, rhythm model, operator console, field app and 4 API endpoints. 23 automated tests including Python ↔ TypeScript ↔ C model parity. |
+| **Technical** | **Built and tested** | Band firmware (ESP32, MAX30102, MPU6050, LM35, SX1278, NEO-6M), LoRa gateway, detection engine, rhythm model, escalation forecaster, operator console, field app and 6 API endpoints. 48 automated tests including Python ↔ TypeScript ↔ C model parity. |
 | **Connectivity** | **Designed for no internet** | Bands → LoRa → gateway with store-and-forward. The console runs entirely in the browser after first load. Only the operator side needs a link, and only to sync. |
 | **Operational** | **Fits existing work** | ASHAs already do home visits. AyuLink tells her *which* homes first. The visit form takes about 30 seconds and saves offline. Band charging and wear compliance are the main risks; ASHA visits double as a wear-and-charge nudge. |
 | **Economic** | **Costing in progress** | Built from commodity modules (ESP32, MAX30102, MPU6050, SX1278). Per-band bill of materials: *TBD — being costed from our purchase records.* One gateway serves a cluster of hamlets; the software runs on free tiers. |
@@ -471,11 +471,24 @@ Built by our team and bench-tested. Three wristbands and one gateway exist.
 |---|---|---|
 | **Microcontroller** | ESP32 DevKit V1 | ESP32 DevKit |
 | **Sensors** | MAX30102 optical pulse + SpO2 · MPU6050 motion (fall / tremor) · LM35 skin temperature · NEO-6M GPS | — |
-| **Radio** | SX1278 LoRa, 433 MHz | SX1278 (Ra-02) LoRa, 433 MHz |
+| **Radio** | SX1278 LoRa uplink, 433.5 MHz · SF9 · 10 dBm, plus ESP-NOW (2.4 GHz) for short-range ACKs | SX1278 (Ra-02) LoRa receiver + ESP-NOW; drops duplicate copies |
 | **Display** | SH1106 1.3" OLED: BPM, SpO2, skin temp, signal | OLED: link status, last packet, location |
 | **Power** | Li-Po cell (3.7 V) with TP4056 USB-C charger | USB 5 V |
 | **On-device logic** | Fall detection, tremor detection, SOS button, rhythm model as a C header (`firmware/rhythm_demo`) | Store-and-forward buffer, forwards JSON over USB / network |
 | **Firmware** | [`firmware/ayulink_band/Wrist_Band`](firmware/ayulink_band/Wrist_Band) · [wiring guide](firmware/ayulink_band/Wrist_Band/WIRING.md) | [`firmware/ayulink_band/Gateway`](firmware/ayulink_band/Gateway) |
+
+### Radio link, compliance and security (honest status)
+
+| | Status |
+|---|---|
+| **Uplink** | Band → gateway over **LoRa** (SX1278, 433.5 MHz, SF9/125 kHz, 32-byte authenticated frame, ~247 ms on air). Routine vitals every 15 s, emergencies every 3 s and at once on any SOS / fall / cancel. Firmware written 12 Nov 2026; **bench range test pending**. Earlier prototype builds used only ESP-NOW. |
+| **Short-range path** | ESP-NOW (2.4 GHz, licence-free) still carries gateway ACKs and notices to the band and a second copy of each frame when in range. The gateway keeps the first copy of each sequence number and drops the other. |
+| **Indian radio rules** | Targets the 433.05–434.79 MHz exemption (G.S.R. 347(E), 2022): **10 mW e.r.p., 10% duty cycle**. Conducted power is set to 10 dBm (≈10 mW e.r.p. with the stock ≤2.15 dBi antenna). A token-bucket limiter keeps every rolling hour under **9.5%** on air (unit-tested). Field deployment still needs **WPC Equipment Type Approval**; the field version may move to 865–867 MHz for range. |
+| **Integrity** | Every frame carries a 48-bit HMAC-SHA256 tag and a sequence number checked against a replay window. |
+| **Confidentiality** | **Not yet.** Vitals are sent unencrypted over the air (pseudonymous device ID, no name). All prototype bands share one published placeholder key, so authentication is tested but not enforced. Planned: per-device keys and AES-CCM payload encryption. |
+| **Location** | GPS fixes are sent when live. Without a fix, the configured home anchor is sent **only in SOS / fall frames**; routine vitals carry no location. |
+
+Settings: [`firmware/ayulink_band/common/ayulink_lora.h`](firmware/ayulink_band/common/ayulink_lora.h).
 
 **How we built it**
 

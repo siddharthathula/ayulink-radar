@@ -47,6 +47,7 @@
 #include "../../common/downlink_queue.h"
 #include "../../common/notice_delivery.h"
 #include "../../common/ayulink_device_crypto.h"
+#include "../../common/ayulink_lora.h"
 
 // ── Hardware Pins ──────────────────────────────────────────────────────────
 #define LORA_SCK     18
@@ -189,7 +190,30 @@ struct BuzzerTask {
 } bz;
 
 static bool fsAvailable = false;
-static bool loraOk = false;
+static bool loraOk = false;   // ESP-NOW short-range link (historical name)
+static bool sx1278Ok = false; // SX1278 LoRa long-range receiver
+static char gRxLink = 'E';    // link of the frame being processed: 'L' LoRa, 'E' ESP-NOW
+static uint32_t loraRxCount = 0, loraRxBad = 0, dupDropCount = 0;
+static int lastLoraRssi = 0;
+static float lastLoraSnr = 0;
+static unsigned long lastSx1278RetryMs = 0;
+
+// The band may deliver the same frame over LoRa and ESP-NOW. Keep the first
+// copy, drop the second, before HMAC/replay checks so the replay log stays clean.
+static uint16_t dupDev[16], dupSeq[16];
+static uint32_t dupMs[16];
+static uint8_t dupIdx = 0;
+static bool isDuplicateTelemetry(const uint8_t* data, size_t len, uint32_t now_ms) {
+  if (len != ayulink::kTelemetrySize) return false;
+  const uint16_t dev = (uint16_t)data[2] | ((uint16_t)data[3] << 8);
+  const uint16_t seq = (uint16_t)data[4] | ((uint16_t)data[5] << 8);
+  for (uint8_t i = 0; i < 16; i++) {
+    if (dupMs[i] && dupDev[i] == dev && dupSeq[i] == seq && now_ms - dupMs[i] < 30000UL) return true;
+  }
+  dupDev[dupIdx] = dev; dupSeq[dupIdx] = seq; dupMs[dupIdx] = now_ms ? now_ms : 1;
+  dupIdx = (dupIdx + 1) % 16;
+  return false;
+}
 static uint32_t droppedNoFs = 0, droppedAtCap = 0;
 static int flushOffsetLines = 0;
 static bool loraTxActive = false;
@@ -436,6 +460,8 @@ static const char *PAGE_TITLES[PAGES] = {"VITALS", "NETWORK", "RADIO", "CARE HUB
 
 // ── Function Declarations ────────────────────────────────────────────────
 void setupLoRa();
+void setupSx1278();
+void pollSx1278();
 void setupOLED();
 void setupLittleFS();
 void setLED(bool r, bool g, bool b);
@@ -594,7 +620,8 @@ void setup() {
 
   Serial.println(F("[BOOT] 4. Initializing Built-in Radio...")); Serial.flush();
   setupLoRa();
-  bootStep(loraOk ? "RADIO" : "RADIO FAULT", 70);
+  setupSx1278();
+  bootStep(sx1278Ok ? (loraOk ? "LORA+NOW" : "LORA") : (loraOk ? "NOW ONLY" : "RADIO FAULT"), 70);
   delay(50);
   esp_task_wdt_reset();
 
@@ -840,8 +867,15 @@ void loop() {
   // Phase 3: Drain priority queues completely so emergencies are never delayed behind batch queues
   GatewayRxPacket rxPkt;
   while (loraOk && popRxPacket(rxPkt)) {
+    if (isDuplicateTelemetry(rxPkt.data, rxPkt.len, millis())) { dupDropCount++; continue; }
     totalPkts++;
+    gRxLink = 'E';
     processLoraPacket(rxPkt.data, rxPkt.len, rxPkt.rssi, rxPkt.rx_ms, rxPkt.priority);
+  }
+  pollSx1278();
+  if (!sx1278Ok && now - lastSx1278RetryMs >= 30000UL) {
+    lastSx1278RetryMs = now;
+    setupSx1278();
   }
   tickLoRaRetry();
   if (!loraOk && now - lastLoraInitAttempt >= 10000UL) {
@@ -896,7 +930,9 @@ void loop() {
     // Process any urgent emergency packet immediately before blocking on display I2C push
     GatewayRxPacket urgentPkt;
     while (loraOk && popRxPacket(urgentPkt)) {
+      if (isDuplicateTelemetry(urgentPkt.data, urgentPkt.len, millis())) { dupDropCount++; continue; }
       totalPkts++;
+      gRxLink = 'E';
       processLoraPacket(urgentPkt.data, urgentPkt.len, urgentPkt.rssi, urgentPkt.rx_ms, urgentPkt.priority);
     }
     lastDraw = now;
@@ -1038,6 +1074,8 @@ void processLoraPacket(uint8_t* buffer, size_t size, int rssi, uint32_t rx_ms, u
     doc["seq"]        = m.seq;
     doc["uptime_s"]   = m.uptime_s;
     doc["rssi"]       = rssi;
+    doc["link"]       = (gRxLink == 'L') ? "lora" : "espnow";
+    if (gRxLink == 'L') doc["snr"] = lastLoraSnr;
     doc["sensor_status"] = (int)m.sensor_status;
     doc["worn"]       = vit.worn;
     doc["sos"]        = dev.sos;
@@ -2253,6 +2291,67 @@ void setupLoRa() {
                 WiFi.channel(),
                 AYULINK_WRISTBAND_MAC[0], AYULINK_WRISTBAND_MAC[1], AYULINK_WRISTBAND_MAC[2],
                 AYULINK_WRISTBAND_MAC[3], AYULINK_WRISTBAND_MAC[4], AYULINK_WRISTBAND_MAC[5]);
+}
+
+// ── SX1278 LoRa receiver (long-range uplink from bands) ────────────────────
+void setupSx1278() {
+  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_NSS);
+  LoRa.setPins(LORA_NSS, LORA_RST, LORA_DIO0);
+  if (!LoRa.begin(ayulink::kLoraFreqHz)) {
+    sx1278Ok = false;
+    Serial.println(F("[LORA-ERR] SX1278 not found - check SPI wiring and antenna"));
+    return;
+  }
+  LoRa.setSpreadingFactor(ayulink::kLoraSf);
+  LoRa.setSignalBandwidth(ayulink::kLoraBwHz);
+  LoRa.setCodingRate4(ayulink::kLoraCrDenom);
+  LoRa.setPreambleLength(ayulink::kLoraPreamble);
+  LoRa.setSyncWord(ayulink::kLoraSyncWord);
+  LoRa.enableCrc();
+  sx1278Ok = true;
+  Serial.printf("[LORA] SX1278 RX OK %.1f MHz SF%d BW%ldk CR4/%d sync 0x%02X\n",
+                ayulink::kLoraFreqHz / 1e6, ayulink::kLoraSf, ayulink::kLoraBwHz / 1000,
+                ayulink::kLoraCrDenom, ayulink::kLoraSyncWord);
+}
+
+// Polled from loop(): the same thread that drains the ESP-NOW queues, so
+// LoRa frames need no locking and are handled at emergency priority order.
+void pollSx1278() {
+  if (!sx1278Ok) return;
+  int size = LoRa.parsePacket();
+  if (size <= 0) return;
+  uint8_t buf[64];
+  if (size > (int)sizeof(buf)) {
+    while (LoRa.available()) LoRa.read();
+    loraRxBad++;
+    return;
+  }
+  int n = 0;
+  while (LoRa.available() && n < size) buf[n++] = (uint8_t)LoRa.read();
+  lastLoraRssi = LoRa.packetRssi();
+  lastLoraSnr = LoRa.packetSnr();
+  const uint32_t now_ms = millis();
+  if (n != (int)ayulink::kTelemetrySize || buf[0] != ayulink::kProtoMagic) {
+    loraRxBad++;
+    Serial.printf("[G1-LORA-RECV] ignored len=%d rssi=%d (not a TelemetryV2 frame)\n", n, lastLoraRssi);
+    return;
+  }
+  loraRxCount++;
+  const uint16_t seq = (uint16_t)buf[4] | ((uint16_t)buf[5] << 8);
+  const uint8_t ev = buf[6], fl = buf[7];
+  Serial.printf("[G1-LORA-RECV] seq=%u ev=%u rssi=%d snr=%.1f total=%lu\n",
+                seq, ev, lastLoraRssi, lastLoraSnr, (unsigned long)loraRxCount);
+  if (isDuplicateTelemetry(buf, n, now_ms)) { dupDropCount++; return; }
+  const bool isEmergency = (fl & (ayulink::FLAG_SOS | ayulink::FLAG_FALL | ayulink::FLAG_TREMOR)) ||
+                           ev == ayulink::EV_SOS || ev == ayulink::EV_FALL_CONFIRM ||
+                           ev == ayulink::EV_TREMOR || ev == ayulink::EV_FALL_IMPACT;
+  const bool isCancel = ev == ayulink::EV_SOS_CANCEL || ev == ayulink::EV_FALL_CANCEL ||
+                        ev == ayulink::EV_SENSOR_FAULT;
+  const uint8_t priority = isEmergency ? 0 : (isCancel ? 1 : 3);
+  totalPkts++;
+  gRxLink = 'L';
+  processLoraPacket(buf, (size_t)n, lastLoraRssi, now_ms, priority);
+  gRxLink = 'E';
 }
 
 void setLED(bool r, bool g, bool b) {

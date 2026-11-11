@@ -5,7 +5,8 @@
  * Hardware:
  *   - MAX30102 optical PPG (I2C 0x57) with lead-off detection
  *   - MPU6050 6-DoF IMU (I2C 0x68)
- *   - LoRa SX1278 433 MHz
+ *   - LoRa SX1278 433.5 MHz: long-range telemetry UPLINK (no WiFi needed)
+ *   - ESP32 ESP-NOW (2.4 GHz): short-range path + gateway ACK/notice downlink
  *   - SH1106 128x64 OLED (I2C 0x3C)
  *   - Tactile SOS button (GPIO33, active-low)
  *   - LM35 analog temperature (GPIO34)
@@ -57,6 +58,7 @@
 #include "../../../common/fall_detector.h"
 #include "../../../common/tremor_detector.h"
 #include "../../../common/ayulink_device_crypto.h"
+#include "../../../common/ayulink_lora.h"
 
 // ── Hotspot & Station MAC Configuration ──────────────────────────────────
 #ifndef AYULINK_WIFI_SSID
@@ -119,8 +121,16 @@ static void onWirelessDataRecv(const uint8_t *mac_addr, const uint8_t *data, int
 // logs and the screen). The band identifies itself by device ID only.
 #define DEVICE_ID      108
 
-#define ANCHOR_LAT     17.162860
-#define ANCHOR_LNG     78.658591
+// Home/anchor location sent ONLY with SOS/fall frames when there is no live
+// GPS fix, so responders still get an address. Set the real value per wearer
+// at build time (build_flags = -D ANCHOR_LAT=... -D ANCHOR_LNG=...) and never
+// commit it. The defaults are a public landmark (Charminar, Hyderabad).
+#ifndef ANCHOR_LAT
+#define ANCHOR_LAT     17.361600
+#endif
+#ifndef ANCHOR_LNG
+#define ANCHOR_LNG     78.474700
+#endif
 
 // ── Tunables ───────────────────────────────────────────────────────────────
 #define ALERT_SHOW_MS              20000
@@ -169,7 +179,12 @@ TinyGPSPlus gps;
 static char devLabel[8];
 bool mpuOk = false;
 bool maxSensorOk = false;
-bool loraOk = false;
+bool loraOk = false;          // ESP-NOW short-range link (historical name)
+bool sx1278Ok = false;        // SX1278 LoRa long-range uplink
+static unsigned long lastLoraTxMs = 0, lastSx1278RetryMs = 0;
+static uint8_t lastLoraEvent = 255;
+static uint32_t loraTxCount = 0, loraDutySkips = 0;
+static ayulink::LoraDutyLimiter loraDuty;
 
 // FIX: double precision. float lat*1e7 lost ~1 m of resolution.
 static double gLat = ANCHOR_LAT, gLng = ANCHOR_LNG;
@@ -767,6 +782,59 @@ static bool loraInit() {
   return true;
 }
 
+// ── SX1278 LoRa uplink ───────────────────────────────────────────────────
+// Settings and the India 433 MHz compliance notes live in common/ayulink_lora.h.
+static bool sx1278Init() {
+  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_NSS);
+  LoRa.setPins(LORA_NSS, LORA_RST, LORA_DIO0);
+  if (!LoRa.begin(ayulink::kLoraFreqHz)) {
+    Serial.println(F("[LORA] SX1278 not found - check SPI wiring and antenna"));
+    return false;
+  }
+  LoRa.setSpreadingFactor(ayulink::kLoraSf);
+  LoRa.setSignalBandwidth(ayulink::kLoraBwHz);
+  LoRa.setCodingRate4(ayulink::kLoraCrDenom);
+  LoRa.setPreambleLength(ayulink::kLoraPreamble);
+  LoRa.setSyncWord(ayulink::kLoraSyncWord);
+  LoRa.enableCrc();
+  LoRa.setTxPower(ayulink::kLoraTxDbm, PA_OUTPUT_PA_BOOST_PIN);
+  LoRa.idle();
+  Serial.printf("[LORA] SX1278 OK %.1f MHz SF%d BW%ldk CR4/%d %d dBm sync 0x%02X airtime %lums/frame\n",
+                ayulink::kLoraFreqHz / 1e6, ayulink::kLoraSf, ayulink::kLoraBwHz / 1000,
+                ayulink::kLoraCrDenom, ayulink::kLoraTxDbm, ayulink::kLoraSyncWord,
+                (unsigned long)ayulink::lora_airtime_ms(ayulink::kTelemetrySize));
+  return true;
+}
+
+// Sends one authenticated TelemetryV2 frame over LoRa if the cadence and the
+// duty-cycle budget allow it. Event changes (SOS, fall, cancel) go out at once.
+// Asynchronous: endPacket(true) returns immediately so the 50 Hz IMU loop
+// never stalls for the ~250 ms on air.
+static bool loraUplink(const uint8_t* frame, size_t len, uint16_t seq, uint8_t event, bool emergency) {
+  if (!sx1278Ok) return false;
+  const unsigned long now = millis();
+  const bool eventChanged = (event != lastLoraEvent);
+  const uint32_t interval = emergency ? ayulink::kLoraIntervalEmergencyMs : ayulink::kLoraIntervalNormalMs;
+  if (!eventChanged && lastLoraTxMs && now - lastLoraTxMs < interval) return false;
+  const uint32_t air = ayulink::lora_airtime_ms((uint8_t)len);
+  if (!loraDuty.allow(now, air)) {
+    loraDutySkips++;
+    Serial.printf("[LORA] duty budget low (%.0f ms) - frame seq=%u held\n", loraDuty.budget_ms(), seq);
+    return false;
+  }
+  if (!LoRa.beginPacket()) return false;  // previous frame still on air
+  LoRa.write(frame, len);
+  LoRa.endPacket(true);
+  loraDuty.spend(air);
+  lastLoraTxMs = now;
+  lastLoraEvent = event;
+  loraTxCount++;
+  Serial.printf("[W3-LORA-SEND] seq=%u ev=%u len=%u air=%lums budget=%.0fms total=%lu\n",
+                seq, event, (unsigned)len, (unsigned long)air, loraDuty.budget_ms(),
+                (unsigned long)loraTxCount);
+  return true;
+}
+
 static bool recentlySent(uint16_t seq, unsigned long now) {
   for (uint8_t i = 0; i < TX_HISTORY; i++) {
     if (sentAt[i] && sentSeq[i] == seq && now - sentAt[i] <= ACK_WINDOW_MS) return true;
@@ -789,7 +857,7 @@ static unsigned long getEmergencyInterval() {
 }
 
 void sendVitals() {
-  if (!loraOk || !seqStoreOk) return;
+  if ((!loraOk && !sx1278Ok) || !seqStoreOk) return;
   bool isEmergency = sosActive || fallActive || tremorActive || cancelPending;
   if (txBusy || noticeAckPending) { txPending = true; return; }
   // Never cut short the bounded downlink window, except for emergency or cancellation.
@@ -830,10 +898,16 @@ void sendVitals() {
   m.spo2_pct_x2 = (spo2 > 0.0f) ? (uint16_t)(spo2 * 2.0f) : ayulink::kSpo2Invalid;
   m.temp_c_x10  = (bodyTemp > 0.0f) ? (int16_t)(bodyTemp * 10.0f) : ayulink::kTempInvalid;
 
-  // The configured anchor remains numeric in every non-GPS packet. GPS is
-  // signalled only for a fresh location AND fresh satellite count above.
-  m.lat_e7 = (int32_t)(gLat * 1e7);
-  m.lng_e7 = (int32_t)(gLng * 1e7);
+  // Location policy (privacy): a live GPS fix is sent as usual. Without a
+  // fix, the configured anchor is sent ONLY in SOS/fall/tremor frames so a
+  // responder has an address; routine vitals carry the invalid sentinel.
+  if (isLiveGpsFix || isEmergency) {
+    m.lat_e7 = (int32_t)(gLat * 1e7);
+    m.lng_e7 = (int32_t)(gLng * 1e7);
+  } else {
+    m.lat_e7 = ayulink::kLatInvalid;
+    m.lng_e7 = ayulink::kLngInvalid;
+  }
 
   uint8_t frame[ayulink::kTelemetrySize];
   if (!ayulink::encode_telemetry(m, frame, ayulink::kDevicePsk, sizeof(ayulink::kDevicePsk),
@@ -850,14 +924,20 @@ void sendVitals() {
                   AYULINK_GATEWAY_MAC[3], AYULINK_GATEWAY_MAC[4], AYULINK_GATEWAY_MAC[5],
                   WiFi.channel(), WiFi.status());
   }
-  txDone = false;
-  txBusy = true;
   txPending = false;
   txStartMs = lastTxMs = millis();
-  esp_err_t err = esp_now_send(AYULINK_GATEWAY_MAC, frame, sizeof(frame));
-  if (err != ESP_OK) {
-    txDone = true;
-    Serial.printf("[TX] esp_now_send error: %d\n", err);
+  // Long-range LoRa uplink first: works with no WiFi or phone anywhere.
+  loraUplink(frame, sizeof(frame), m.seq, m.event, isEmergency);
+  // Short-range ESP-NOW copy when the gateway is near; the gateway drops
+  // whichever copy of a seq arrives second.
+  if (loraOk) {
+    txDone = false;
+    txBusy = true;
+    esp_err_t err = esp_now_send(AYULINK_GATEWAY_MAC, frame, sizeof(frame));
+    if (err != ESP_OK) {
+      txDone = true;
+      Serial.printf("[TX] esp_now_send error: %d\n", err);
+    }
   }
   sentSeq[sentHead] = m.seq;
   sentAt[sentHead] = txStartMs;
@@ -1568,7 +1648,8 @@ void setup() {
   // NO RADIO, and retries every 10 s.
   loraOk = loraInit();
   Serial.println(loraOk ? F("[WIRELESS] ESP-NOW Radio OK") : F("[WIRELESS] Radio init failed - retrying in loop"));
-  bootStep(loraOk ? "OK RADIO" : "RADIO OFF", 75);
+  sx1278Ok = sx1278Init();
+  bootStep(sx1278Ok ? (loraOk ? "OK LORA+NOW" : "OK LORA") : (loraOk ? "NOW ONLY" : "RADIO OFF"), 75);
 
   gpsSerial.begin(GPS_BAUD, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN);
   bootStep("GPS", 90);
@@ -1599,7 +1680,12 @@ void loop() {
   if (!loraOk && now - lastLoraRetryMs >= 10000) {
     lastLoraRetryMs = now;
     loraOk = loraInit();
-    if (loraOk) Serial.println(F("[LoRa] RECOVERED"));
+    if (loraOk) Serial.println(F("[WIRELESS] ESP-NOW RECOVERED"));
+  }
+  if (!sx1278Ok && now - lastSx1278RetryMs >= 30000) {
+    lastSx1278RetryMs = now;
+    sx1278Ok = sx1278Init();
+    if (sx1278Ok) Serial.println(F("[LORA] SX1278 RECOVERED"));
   }
 
   if (!anyAlert() && !toastActive() && !sliding && uiHoldMs == 0 &&
