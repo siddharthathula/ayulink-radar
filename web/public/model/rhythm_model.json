@@ -1,0 +1,166 @@
+{
+  "features": [
+    "mean_rr",
+    "sdnn",
+    "rmssd",
+    "pnn50",
+    "cv",
+    "nrmssd",
+    "sd_ratio",
+    "entropy",
+    "tpr"
+  ],
+  "mean": [
+    737.4029393869288,
+    86.55138377101785,
+    121.78386914070434,
+    0.39611511569461905,
+    0.12582618999231285,
+    0.17676937254423356,
+    3685.7151416783113,
+    1.591641137690986,
+    0.551145607997677
+  ],
+  "scale": [
+    165.9442270370349,
+    67.45351643575704,
+    101.48921625049859,
+    0.344090815302537,
+    0.09673429505649517,
+    0.14232773537529195,
+    221710.84805898182,
+    0.7592684676604556,
+    0.14869683844419898
+  ],
+  "coef": [
+    -3.6295664707001136,
+    3.7964275447250366,
+    1.7115088818473467,
+    0.11855812391013136,
+    -1.3512280684858662,
+    -4.129385571234809,
+    -0.35888378472792687,
+    5.385250815186268,
+    0.917689476842375
+  ],
+  "intercept": -3.7070480167104534,
+  "threshold": 0.6726112706795309,
+  "windowBeats": 30,
+  "metrics": {
+    "dataSource": "MIT-BIH Atrial Fibrillation Database (PhysioNet afdb v1.0.0)",
+    "license": "Open Data Commons Attribution License v1.0 (ODC-BY 1.0)",
+    "split": "GroupKFold(5) by record; final model fit on all windows",
+    "nWindows": 77794,
+    "nAf": 34247,
+    "nNormal": 43547,
+    "nRecords": 25,
+    "thresholdRule": "smallest out-of-fold threshold with specificity >= 0.95",
+    "folds": [
+      {
+        "fold": 1,
+        "test_records": [
+          "00735",
+          "04746",
+          "05121",
+          "07162",
+          "07859"
+        ],
+        "n": 15826,
+        "n_af": 11017,
+        "n_normal": 4809,
+        "sensitivity": 0.9345556866660616,
+        "specificity": 0.9900187149095446,
+        "auroc": 0.9943514204111067
+      },
+      {
+        "fold": 2,
+        "test_records": [
+          "04908",
+          "05091",
+          "05261",
+          "06426",
+          "08434"
+        ],
+        "n": 15678,
+        "n_af": 4071,
+        "n_normal": 11607,
+        "sensitivity": 0.9958241218373864,
+        "specificity": 0.9827690186956147,
+        "auroc": 0.9974365158862685
+      },
+      {
+        "fold": 3,
+        "test_records": [
+          "04015",
+          "06453",
+          "06995",
+          "08378",
+          "08455"
+        ],
+        "n": 15597,
+        "n_af": 5573,
+        "n_normal": 10024,
+        "sensitivity": 0.9816974699443747,
+        "specificity": 0.9300678371907423,
+        "auroc": 0.9827044556548941
+      },
+      {
+        "fold": 4,
+        "test_records": [
+          "04048",
+          "04936",
+          "07879",
+          "07910",
+          "08405"
+        ],
+        "n": 15633,
+        "n_af": 8734,
+        "n_normal": 6899,
+        "sensitivity": 0.9264941607510877,
+        "specificity": 0.9976808233077258,
+        "auroc": 0.9988673301948726
+      },
+      {
+        "fold": 5,
+        "test_records": [
+          "03665",
+          "04043",
+          "04126",
+          "08215",
+          "08219"
+        ],
+        "n": 15060,
+        "n_af": 4852,
+        "n_normal": 10208,
+        "sensitivity": 0.9260098928277,
+        "specificity": 0.8812695924764891,
+        "auroc": 0.9693361792764899
+      }
+    ],
+    "mean": {
+      "sensitivity": 0.9529162664053221,
+      "specificity": 0.9563611973160233,
+      "auroc": 0.9885391802847263
+    },
+    "sd": {
+      "sensitivity": 0.03327398845043654,
+      "specificity": 0.04966790441704597,
+      "auroc": 0.012474119767421793
+    },
+    "outOfFold": {
+      "sensitivity": 0.9462434665810144,
+      "specificity": 0.9500080372930397,
+      "auroc": 0.9851022068696361,
+      "confusion": {
+        "tn": 41370,
+        "fp": 2177,
+        "fn": 1841,
+        "tp": 32406
+      }
+    },
+    "generatedAt": "2026-11-11T09:20:04+00:00"
+  },
+  "trainedOn": "MIT-BIH Atrial Fibrillation Database (afdb), 25 records, 30-RR windows, GroupKFold(5) by record",
+  "license": "Model trained on ODC-BY 1.0 data. Cite Moody & Mark 1983 and PhysioNet. Intended for screening research, not diagnosis.",
+  "generatedAt": "2026-11-11T09:23:15+00:00"
+}
