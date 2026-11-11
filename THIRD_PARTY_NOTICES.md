@@ -44,6 +44,10 @@ under the same ODC-BY 1.0 terms. Raw ECG data is never committed.
 | Name | License | URL | Used for |
 |---|---|---|---|
 | OpenStreetMap standard tiles | Tile data © OpenStreetMap contributors, ODbL 1.0; tile service subject to the OSM tile usage policy | https://www.openstreetmap.org/copyright | Illustrative zone basemap |
+| OpenTopoMap | Map data © OpenStreetMap contributors, SRTM; style © OpenTopoMap (CC-BY-SA) | https://opentopomap.org | Terrain layer |
+| Esri World Imagery + Boundaries and Places | Tiles © Esri; Source: Esri, Maxar, Earthstar Geographics, GIS user community; Esri terms of use | https://www.esri.com/en-us/legal/terms/full-master-agreement | Satellite layer |
+| Esri Light / Dark Gray Canvas (base + reference) | Tiles © Esri; Esri, HERE, Garmin, © OpenStreetMap contributors; Esri terms of use | https://www.esri.com/en-us/legal/terms/full-master-agreement | Light / dark layers (default, no key) |
+| CARTO Positron / Dark Matter (optional) | © OpenStreetMap contributors © CARTO; needs a free key since Sep 2026 | https://carto.com/legal/basemap-terms/ | Light / dark layers only if `NEXT_PUBLIC_CARTO_KEY` is set |
 
 Attribution "© OpenStreetMap contributors" is rendered on every Leaflet map.
 No bulk tile downloading is performed. The SVG schematic works with tiles

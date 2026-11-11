@@ -77,6 +77,7 @@ export default function RadarMapLeaflet(props: Props) {
   const mapRef = useRef<LeafletMap | null>(null);
   const layerRef = useRef<LayerGroup | null>(null);
   const tileRef = useRef<TileLayer | null>(null);
+  const labelsRef = useRef<TileLayer | null>(null);
   const onTileFailureRef = useRef(onTileFailure);
   useEffect(() => {
     onTileFailureRef.current = onTileFailure;
@@ -110,6 +111,7 @@ export default function RadarMapLeaflet(props: Props) {
       removed = true;
       layerRef.current = null;
       tileRef.current = null;
+      labelsRef.current = null;
       map?.remove();
       mapRef.current = null;
     };
@@ -126,6 +128,8 @@ export default function RadarMapLeaflet(props: Props) {
       const L = await import("leaflet");
       if (cancelled) return;
       tileRef.current?.remove();
+      labelsRef.current?.remove();
+      labelsRef.current = null;
       let loaded = false;
       let errors = 0;
       const tiles = L.tileLayer(basemap.url, {
@@ -146,6 +150,17 @@ export default function RadarMapLeaflet(props: Props) {
       tiles.addTo(map);
       tiles.bringToBack();
       tileRef.current = tiles;
+      if (basemap.labelsUrl) {
+        // Place-name labels above the base, below our zones (overlay pane is above tile pane).
+        const labels = L.tileLayer(basemap.labelsUrl, {
+          maxZoom: 19,
+          maxNativeZoom: basemap.maxNativeZoom,
+          crossOrigin: true,
+          opacity: 0.9,
+        });
+        labels.addTo(map);
+        labelsRef.current = labels;
+      }
       timer = setTimeout(() => {
         if (!loaded) onTileFailureRef.current();
       }, 6000);

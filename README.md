@@ -562,8 +562,8 @@ docs/       method, architecture, images
 ```
 
 **Stack:** Next.js · TypeScript · Tailwind CSS · Leaflet · Recharts · Vitest · Python (scikit-learn,
-wfdb) · ESP32 (Arduino / PlatformIO) · LoRa SX1278. Maps: OpenStreetMap, OpenTopoMap, CARTO,
-Sentinel-2 cloudless (EOX). Live weather: Open-Meteo. Full list:
+wfdb) · ESP32 (Arduino / PlatformIO) · LoRa SX1278. Maps (no key needed): OpenStreetMap, OpenTopoMap,
+Esri World Imagery and Light/Dark Gray Canvas; CARTO only if you set `NEXT_PUBLIC_CARTO_KEY`. Live weather: Open-Meteo. Full list:
 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ---

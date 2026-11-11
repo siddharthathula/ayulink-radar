@@ -7,11 +7,34 @@ export interface BasemapDef {
   attribution: string;
   maxNativeZoom: number;
   subdomains?: string;
+  /** Optional transparent label layer drawn above the base tiles. */
+  labelsUrl?: string;
   muted?: boolean;
 }
 
+const OSM = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors';
+const ESRI_CANVAS = `Tiles &copy; <a href="https://www.esri.com" target="_blank" rel="noreferrer">Esri</a> — Esri, HERE, Garmin, ${OSM}, and the GIS user community`;
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services";
+
 /**
- * Free tile sources that need no key. Each keeps its required attribution.
+ * Optional CARTO key. Since 25 Sep 2026 CARTO raster tiles need a (free) key and
+ * return an "API KEY REQUIRED" image without one. With no key we use Esri's
+ * keyless Canvas basemaps instead, so the map always works out of the box.
+ * The key ends up in the browser, so treat it as public and restrict it to your domain.
+ */
+const CARTO_KEY = (process.env.NEXT_PUBLIC_CARTO_KEY ?? "").trim();
+
+function cartoOr(style: "light_all" | "dark_all", fallback: Omit<BasemapDef, "id" | "label">): Omit<BasemapDef, "id" | "label"> {
+  if (!CARTO_KEY) return fallback;
+  return {
+    url: `https://basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CARTO_KEY)}`,
+    attribution: `${OSM} &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>`,
+    maxNativeZoom: 20,
+  };
+}
+
+/**
+ * Tile sources that work with no key. Each keeps its required attribution.
  * Check each provider's usage policy before heavy or commercial use.
  */
 export const BASEMAPS: Record<BasemapDef["id"], BasemapDef> = {
@@ -19,7 +42,7 @@ export const BASEMAPS: Record<BasemapDef["id"], BasemapDef> = {
     id: "street",
     label: "Street",
     url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors',
+    attribution: OSM,
     maxNativeZoom: 19,
     muted: true,
   },
@@ -28,35 +51,37 @@ export const BASEMAPS: Record<BasemapDef["id"], BasemapDef> = {
     label: "Terrain",
     url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
     subdomains: "abc",
-    attribution:
-      'Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors, SRTM | Style &copy; <a href="https://opentopomap.org" target="_blank" rel="noreferrer">OpenTopoMap</a> (CC-BY-SA)',
+    attribution: `Map data ${OSM}, SRTM | Style &copy; <a href="https://opentopomap.org" target="_blank" rel="noreferrer">OpenTopoMap</a> (CC-BY-SA)`,
     maxNativeZoom: 17,
   },
   satellite: {
     id: "satellite",
     label: "Satellite",
-    url: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg",
+    url: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    labelsUrl: `${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
     attribution:
-      '<a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2016)',
-    maxNativeZoom: 15,
+      'Tiles &copy; <a href="https://www.esri.com" target="_blank" rel="noreferrer">Esri</a> — Source: Esri, Maxar, Earthstar Geographics, and the GIS user community',
+    maxNativeZoom: 18,
   },
   light: {
     id: "light",
     label: "Light",
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    subdomains: "abcd",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    maxNativeZoom: 20,
+    ...cartoOr("light_all", {
+      url: `${ESRI}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+      labelsUrl: `${ESRI}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+      attribution: ESRI_CANVAS,
+      maxNativeZoom: 16,
+    }),
   },
   dark: {
     id: "dark",
     label: "Dark",
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    subdomains: "abcd",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    maxNativeZoom: 20,
+    ...cartoOr("dark_all", {
+      url: `${ESRI}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+      labelsUrl: `${ESRI}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+      attribution: ESRI_CANVAS,
+      maxNativeZoom: 16,
+    }),
   },
 };
 
